@@ -1,0 +1,2 @@
+[Sun Feb 18 21:27:20.049766 2024] [php:warn] [pid 3344:tid 1944] [client ::1:65021] PHP Warning:  include(signup.php): Failed to open stream: No such file or directory in C:\\Users\\ADunaev\\source\\repos\\GetRatePHP\\_layout.php on line 40, referer: http://get-rate.loc/
+[Sun Feb 18 21:27:20.049766 2024] [php:warn] [pid 3344:tid 1944] [client ::1:65021] PHP Warning:  include(): Failed opening 'signup.php' for inclusion (include_path='C:\\xampp\\php\\PEAR') in C:\\Users\\ADunaev\\source\\repos\\GetRatePHP\\_layout.php on line 40, referer: http://get-rate.loc/
