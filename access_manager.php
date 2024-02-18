@@ -57,7 +57,6 @@ if($uri != ""){
 $routes = [
     'basics' => 'basics.php',
     'layout' => 'layout.php',
-    'api' => 'api.php',
     '' => 'index.php',
     'signup' => 'signup.php'
 ];
