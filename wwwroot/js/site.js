@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.modal');
     var instances = M.Modal.init(elems);
 
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
+
     // шукаємо кнопку реєстрації. якщо находим додаємо обробник
     const signUpButton = document.getElementById("signup-button");
     if(signUpButton){

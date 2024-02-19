@@ -55,10 +55,10 @@ if($uri != ""){
 }
 
 $routes = [
-    'basics' => 'basics.php',
+    'request' => 'request.php',
     'layout' => 'layout.php',
     '' => 'index.php',
-    'signup' => 'signup.php'
+    'signup' => 'signup.php',
 ];
 
 if(isset($routes[$uri])) { // у маршрутах є відповідний запис
