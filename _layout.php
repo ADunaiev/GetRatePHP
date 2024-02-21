@@ -37,32 +37,36 @@
                 <li><a href="badges.html">Components</a></li>
                 <li><a href="collapsible.html">Javascript</a></li>
                 <li><a href="mobile.html">Mobile</a></li> -->
+                <li><a class="modal-trigger" href="/request">Request</a></li> 
                 <li><a class="modal-trigger" href="#modal1">Sign-In</a></li> 
             </ul>
 
             <!-- Modal Structure -->
             <div id="modal1" class="modal">
-                <div class="modal-content">
-                    <h5>Вхід у систему</h5>
+                <form class="modal-content">
+                    <h5>Authorization</h5>
                     <div class="row">
-                        <form class="col s12">
+                        <div class="col s12">
                             <div class="row">
                                 <div class="input-field col s12">
                                     <i class="material-icons prefix">email</i>
-                                    <input id="sign-in-email" type="email" class="validate">
+                                    <input id="sign-in-email" name="sign-in-email" type="email" class="validate">
                                     <label for="sign-in-email">Email</label>
+                                    <span class="helper-text" data-error="wrong" data-success="right">Ваш email</span>
                                 </div>
                                 <div class="input-field col s12">
                                     <i class="material-icons prefix">password</i>
-                                    <input id="sign-in-password" type="password" class="validate">
+                                    <input id="sign-in-password" name="sign-in-password" type="password" class="validate">
                                     <label for="sign-in-password">Password</label>
+                                    <span class="helper-text" data-error="wrong" data-success="right">Пароль</span>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                     <div class="row center-align">   
                         <div class="col s12">
-                            <a href="#!" style="width:100%;" class="modal-close waves-effect blue btn">Sign in</a>
+                            <!--<a href="#!" style="width:100%;" class="modal-close waves-effect blue btn">Sign in</a> -->
+                            <button style="width:100%;" class="waves-effect blue btn" type="button" id="auth-button">Sign in</button>
                         </div>
                     </div>
                     <div class="row">
@@ -70,7 +74,7 @@
                             <a href="/signup" style="width:100%;" class="modal-close waves-effect waves-green btn">Sign Up</a>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
 
         </header>

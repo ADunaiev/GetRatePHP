@@ -5,11 +5,12 @@
     - дозволити користувачам розраховувати ставки перевезень онлайн. 
     Для продовження Вам потрібно авторізуватися.
 </p>
-
+<!--
 <div class="card-panel cyan darken-1">
     <button class="btn wave-effect waves-light" onclick="getClick()">CREATE</button>
     <div id="api-result"></div>
 </div>
+
 
 
 <script>
@@ -21,3 +22,5 @@ function getClick() {
     })
 }
 </script>
+
+-->

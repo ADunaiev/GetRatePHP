@@ -5,24 +5,8 @@ include_once "ApiController.php";
 class AuthController extends ApiController {
 
     protected function do_get() {
-        $db = $this->connect_db_or_exit();
-        // виконання запитів
-        $sql = "CREATE TABLE IF NOT EXISTS Users (
-            `id`          CHAR(36)        PRIMARY KEY DEFAULT (UUID()),
-            `email`       VARCHAR(128)    NOT NULL,
-            `name`        VARCHAR(64)     NOT NULL,
-            `password`    CHAR(32)        NOT NULL COMMENT 'Hash of password', 
-            `avatar`      VARCHAR(128)    NULL
-        )ENGINE = INNODB, DEFAULT CHARSET = utf8mb4";
-        try {
-            $db->query($sql);
-        }
-        catch(PDOException $ex) {
-            http_response_code(500);
-            echo "Connection error: " . $ex->getMessage();
-            exit;
-        }
-        echo "Hello from do_get - Query OK"; 
+
+        echo "Hello from do_get" . $_GET['email']; 
     }
 
     /**
@@ -44,7 +28,9 @@ class AuthController extends ApiController {
                 'time' => time()
             ],
             'data' => [
-                'message' => ""
+                'message' => "",
+                'avatar' => "",
+                'name' => "",
             ],
         ];
         if(! empty($_FILES['user-avatar'])){
@@ -75,14 +61,44 @@ class AuthController extends ApiController {
                 $_FILES['user-avatar']['tmp_name'], 
                 "./wwwroot/avatar/" . $filename
             );
-
             
+            $result['data']['avatar'] = $filename;
 
 
+      
+            
         }
 
-        $result['data']['status'] = 1;
-        $result['data']['message'] = "Signup OK";
+        $db = $this->connect_db_or_exit();
+        $user_email = $_POST['user-email'];
+        $user_name = $_POST['user-name'];
+        $user_password = password_hash( $_POST['user-password'], PASSWORD_BCRYPT);
+        $user_avatar = $result['data']['avatar'] ;
+        $sql = "INSERT INTO Users 
+            (`email`, `name`, `password`, `avatar`)
+            VALUES 
+            (   
+                '$user_email',
+                '$user_name',
+                '$user_password',
+                '$user_avatar' 
+            )";
+        
+        try {
+            $db->query($sql);
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result['status'] = 0;
+            $result['data']['message'] = "Error! User was not added. Please send a message to adunaev@me.com";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        $result['status'] = 1;
+        $result['data']['message'] = "User is added successfully!";
+        
+        $result['data']['name'] = $_POST['user-name'];
         $this->end_with($result);
 
     }

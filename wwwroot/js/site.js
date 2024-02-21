@@ -15,7 +15,58 @@ document.addEventListener('DOMContentLoaded', function() {
     if(signUpButton){
         signUpButton.onclick = signupButtonClick;
     }
+
+    // шукаємо кнопку авторізації. якщо находим додаємо обробник
+    const authButton = document.getElementById("auth-button");
+    if(authButton){
+        authButton.onclick = authButtonClick;
+    }
   });
+
+  function authButtonClick(e){
+
+    var check = true;
+    // шукаємо батьківський елемент кнопки (e.target)
+    const signinForm = e.target.closest('form');
+    if(! signinForm) {
+        throw "Signin form was not found";
+    }
+
+    const signinEmailInput = signinForm.querySelector('input[name="sign-in-email"]');
+    if(!signinEmailInput) {throw "Element 'sign-in-email' not found";}
+    const signinEmailInputHelper = signinEmailInput.parentNode.querySelector('.helper-text');
+    if(!signinEmailInputHelper) {throw "Element signinEmail '.helper' is not found"}
+
+    const signinPasswordInput = signinForm.querySelector('input[name="sign-in-password"]');
+    if(!signinPasswordInput) {throw "Element 'sign-in-password' not found";}
+    const signinPasswordInputHelper = signinPasswordInput.parentNode.querySelector('.helper-text');
+    if(!signinPasswordInputHelper) {throw "Element signinPassword '.helper' is not found"}
+
+    if (signinEmailInput.value == "") {
+        check = false;
+        signinEmailInput.className = "invalid";
+        signinEmailInputHelper.setAttribute('data-error', "Email could not be empty!");
+    }
+    else if (signinPasswordInput.value == "") {
+
+        signinEmailInput.className = "valid";
+        check = false;
+        signinPasswordInput.className = "invalid";
+        signinPasswordInputHelper.setAttribute('data-error', "Password could not be empty!");
+    }
+    else if (check == true) {  
+        signinPasswordInput.className = "valid";
+        
+        // передаємо - формуємо запит
+
+        fetch(`/auth?email=${signinEmailInput.value}&password=${signinPasswordInput.value}`)
+            .then( r => r.text())
+            .then( t => {
+                console.log(t);
+            }) ;
+    }
+
+  }
 
   function signupButtonClick(e) {
     // console.log("signup button clicked");
@@ -59,7 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData
         })
             .then( r => r.json())
-            .then(console.log) ;
+            .then( j => {
+                console.log(j);
+
+                document.getElementById("sign-up-form").innerHTML =
+                 j['data']['message'];
+
+            }) ;
     }
 
 }
@@ -137,13 +194,14 @@ function validateSignUpForm(formNode) {
         passwordHelper.setAttribute('data-error', "Пароль не може бути порожним");
         check = false;
     }
-    else if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/i.test(userPassword.value)) {
+    //  ^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#\-_)\^(0?&])[A-Za-z\d@$!\^)(0_%*#?
+    else if (/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#\-_)\^(0?&])[A-Za-z\d@$!\^)(0_%*#?\-&]{8,}$/i.test(userPassword.value)) {
         userPassword.className = "valid";
         passwordHelper.setAttribute('data-success', "Приймається!");
     }
     else {
         userPassword.className = "invalid";
-        passwordHelper.setAttribute('data-error', "Мінімум 8 символів, щонайменьше одна літера та одна цифра");
+        passwordHelper.setAttribute('data-error', "Minimum eight characters, at least one letter, one number and one special character");
         check = false;
     }
 

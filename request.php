@@ -41,7 +41,7 @@
         </div>
         <div class="row">
             <div class="col s6 m3 right">
-                <button type="button" class="btn right" id="request-button">Send</button>
+                <button type="button" class="btn right cyan darken-1" id="request-button">Send</button>
             </div>
         </div>
     </form>
