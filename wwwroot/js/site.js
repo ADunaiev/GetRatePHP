@@ -60,9 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // передаємо - формуємо запит
 
         fetch(`/auth?email=${signinEmailInput.value}&password=${signinPasswordInput.value}`)
-            .then( r => r.text())
-            .then( t => {
-                console.log(t);
+            .then( r => 
+                r.json()
+            )
+            .then(j => {
+                //window.location.href ="/message";
+                console.log(j);
+                //sessionStorage.setItem("user-name", j['data']['message']);
+                M.toast({html: j['data']['message']});
+        
             }) ;
     }
 

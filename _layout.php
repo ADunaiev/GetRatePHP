@@ -23,10 +23,16 @@
                         <li><a href="/request">Request</a></li>
                         <!--
                         <li><a href="badges.html">Components</a></li>
-                        <li><a href="collapsible.html">Javascript</a></li>
+                        
                         <li><a href="mobile.html">Mobile</a></li> -->
                         <!-- Modal Trigger -->
-                        <a class="modal-trigger btn-flat" href="#modal1"><i style="color:white;" class="material-icons">perm_identity</i></a>      
+                         
+                        <li><a href="/message">Message</a></li>
+                        
+                                
+                        <a class="modal-trigger btn-flat" href="#modal1"><i style="color:white;" class="material-icons">perm_identity</i></a>
+
+   
                     </ul>
                 </div>
             </nav>
@@ -38,12 +44,13 @@
                 <li><a href="collapsible.html">Javascript</a></li>
                 <li><a href="mobile.html">Mobile</a></li> -->
                 <li><a class="modal-trigger" href="/request">Request</a></li> 
+                <li><a class="modal-trigger" href="/message">Message</a></li> 
                 <li><a class="modal-trigger" href="#modal1">Sign-In</a></li> 
             </ul>
 
             <!-- Modal Structure -->
             <div id="modal1" class="modal">
-                <form class="modal-content">
+                <form class="modal-content" id="auth-modal">
                     <h5>Authorization</h5>
                     <div class="row">
                         <div class="col s12">
@@ -82,6 +89,9 @@
         <main class="container">
             <?php include $page_body ; ?>
         </main>
+            <p>
+
+            </p>
       
         <!-- Footer -->
         <footer class="page-footer cyan darken-1 container">

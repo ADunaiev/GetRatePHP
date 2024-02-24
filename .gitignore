@@ -24,6 +24,10 @@
 /app/Config/database.php
 /vendors/*
 /server-logs/*
+/server-logs/access.log
 /avatar/*
-/controllers/ApiController.php
+#/controllers/ApiController.php
 *.png
+config.ini
+server-logs/access.log
+*.log
