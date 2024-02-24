@@ -1,3 +1,24 @@
+<?php
+    session_start();
+
+    if (isset($_SESSION['user'])){
+        $session_time = 600;
+        $user = $_SESSION['user'];
+        $interval = time() - $_SESSION['auth-moment'];
+        if ($interval > $session_time) {
+            unset($_SESSION['user']);
+            unset($_SESSION['auth-moment']);
+        }
+        else {
+            $user = $_SESSION['user'];
+            $_SESSION['auth-moment'] = time();
+        }
+    }
+    else {
+        $user = null;
+    }
+?>
+
 <!doctype html>
 <html>
     <head>
@@ -16,9 +37,10 @@
         <header class="container">
             <nav>
                 <div class="nav-wrapper cyan darken-1">
-                    <a href="/" class="brand-logo center">Get Rate</a>
+                    <div class="container">
+                    <a href="/" class="brand-logo">Get Rate</a>
                     <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-                    <ul class="right hide-on-med-and-down">
+                    <ul class="hide-on-med-and-down right">
 
                         <li><a href="/request">Request</a></li>
                         <!--
@@ -28,16 +50,23 @@
                         <!-- Modal Trigger -->
                          
                         <li><a href="/message">Message</a></li>
-                        
-                                
-                        <a class="modal-trigger btn-flat" href="#modal1"><i style="color:white;" class="material-icons">perm_identity</i></a>
-
-   
+                        <?php if($user) { ?>
+                            <li>                          
+                                <a hraf="#!"  class="nav-text-img">
+                                    <?= $user['name'] ?> 
+                                    <img src="avatar/<?= $user['avatar'] ?>" class="rounded nav-avatar">
+                                </a>                                                     
+                            </li>
+                            <li><a class="modal-trigger btn-flat" href="#modal1"><i style="color:white;" class="material-icons">exit_to_app</i></a></li>
+                        <?php } else { ?>       
+                            <a class="modal-trigger btn-flat" href="#modal1"><i style="color:white;" class="material-icons">perm_identity</i></a>
+                        <?php } ?>
                     </ul>
+                    </div>
                 </div>
             </nav>
 
-            <ul class="sidenav" id="mobile-demo">
+            <ul class="sidenav right" id="mobile-demo">
                 <!--
                 <li><a href="sass.html">Sass</a></li>
                 <li><a href="badges.html">Components</a></li>
@@ -45,7 +74,17 @@
                 <li><a href="mobile.html">Mobile</a></li> -->
                 <li><a class="modal-trigger" href="/request">Request</a></li> 
                 <li><a class="modal-trigger" href="/message">Message</a></li> 
-                <li><a class="modal-trigger" href="#modal1">Sign-In</a></li> 
+
+                <?php if($user) { ?>
+                    <li>                          
+                        <a hraf="#!" class="model-trigger">
+                            <?= $user['name'] ?>
+                        </a>                                                     
+                    </li>
+                    <li><a class="modal-trigger" href="#modal1">Sign out</a></li>
+                <?php } else { ?>       
+                    <a class="modal-trigger" href="#modal1">Sign in</a>
+                <?php } ?>
             </ul>
 
             <!-- Modal Structure -->
@@ -87,11 +126,16 @@
         </header>
 
         <main class="container">
+            <p>
+                <!--
+                <?php /* if( $user) { echo $user['name'] ?>
+                is successfully signed in!<br/>Time left to the end of session:" . 
+                <?php echo ($session_time - $interval); } */?>  
+                -->    
+            </p>
             <?php include $page_body ; ?>
         </main>
-            <p>
 
-            </p>
       
         <!-- Footer -->
         <footer class="page-footer cyan darken-1 container">

@@ -64,11 +64,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 r.json()
             )
             .then(j => {
-                //window.location.href ="/message";
-                console.log(j);
-                //sessionStorage.setItem("user-name", j['data']['message']);
-                M.toast({html: j['data']['message']});
-        
+                if(j['status'] == 1) {
+                    window.location.reload();
+                    //console.log(j);
+                }
+                else {
+                    M.toast({html: j['data']['message']});
+                }       
             }) ;
     }
 
