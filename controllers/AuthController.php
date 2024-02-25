@@ -1,7 +1,6 @@
 <?php
 
 include_once "ApiController.php";
-include_once "MySQLSessionHandler.php";
 
 class AuthController extends ApiController {
 
@@ -45,16 +44,16 @@ class AuthController extends ApiController {
             $search_result = $prep->fetch();
 
             if ($search_result === false) {
-                $auth_result['data']['message'] = "Credentials rejected!" ;
+                $result['data']['message'] = "Credentials rejected!" ;
                 $this->end_with($result);
             }
         }
         catch(PDOexception $ex) {
             http_response_code(500);
-            $auth_result['data']['message'] = "Connection error: " . $ex->getMessage();
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
             exit;
         }
-
+        
         session_start();
         $_SESSION['user'] = $search_result;
         $result['data']['message'] = $search_result; 
@@ -67,7 +66,6 @@ class AuthController extends ApiController {
     /**
      * Реєстрація нового користувача (Create)
      */
-
     protected function do_post() {
         /*
         $result = [
@@ -117,11 +115,7 @@ class AuthController extends ApiController {
                 "./wwwroot/avatar/" . $filename
             );
             
-            $result['data']['avatar'] = $filename;
-
-
-      
-            
+            $result['data']['avatar'] = $filename;    
         }
 
         $db = $this->connect_db_or_exit();
@@ -157,4 +151,31 @@ class AuthController extends ApiController {
         $this->end_with($result);
 
     }
+
+
+    protected function do_delete() {
+        $result = [
+            'status' => 0,
+            'meta' => [
+                'api' => 'auth',
+                'service' => 'signout',
+                'time' => time()
+            ],
+            'data' => [
+                'message' => "Session is not finished",
+            ]
+            ];
+        
+        session_start();
+        session_unset();
+        if(session_destroy()) {
+            $result['status'] = 1;
+            $result['data']['message'] = "Session is finished successfully";
+        }
+        $this->end_with($result);
+    }
+
+
+
+
 }

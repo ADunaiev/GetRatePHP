@@ -2,7 +2,7 @@
     session_start();
 
     if (isset($_SESSION['user'])){
-        $session_time = 600;
+        $session_time = 1800;
         $user = $_SESSION['user'];
         $interval = time() - $_SESSION['auth-moment'];
         if ($interval > $session_time) {
@@ -41,23 +41,16 @@
                     <a href="/" class="brand-logo">Get Rate</a>
                     <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                     <ul class="hide-on-med-and-down right">
-
-                        <li><a href="/request">Request</a></li>
-                        <!--
-                        <li><a href="badges.html">Components</a></li>
-                        
-                        <li><a href="mobile.html">Mobile</a></li> -->
-                        <!-- Modal Trigger -->
-                         
-                        <li><a href="/message">Message</a></li>
                         <?php if($user) { ?>
+                            <li><a href="/request">Request</a></li>                   
+                            <li><a href="/message">Message</a></li>
                             <li>                          
-                                <a hraf="#!"  class="nav-text-img">
+                                <a href="/userprofile"  class="nav-text-img">
                                     <?= $user['name'] ?> 
                                     <img src="avatar/<?= $user['avatar'] ?>" class="rounded nav-avatar">
                                 </a>                                                     
                             </li>
-                            <li><a class="modal-trigger btn-flat" href="#modal1"><i style="color:white;" class="material-icons">exit_to_app</i></a></li>
+                            <li><a class="btn-flat" href="#!" onclick="signOutButtonClick()"><i style="color:white;" class="material-icons">exit_to_app</i></a></li>
                         <?php } else { ?>       
                             <a class="modal-trigger btn-flat" href="#modal1"><i style="color:white;" class="material-icons">perm_identity</i></a>
                         <?php } ?>
@@ -67,23 +60,17 @@
             </nav>
 
             <ul class="sidenav right" id="mobile-demo">
-                <!--
-                <li><a href="sass.html">Sass</a></li>
-                <li><a href="badges.html">Components</a></li>
-                <li><a href="collapsible.html">Javascript</a></li>
-                <li><a href="mobile.html">Mobile</a></li> -->
-                <li><a class="modal-trigger" href="/request">Request</a></li> 
-                <li><a class="modal-trigger" href="/message">Message</a></li> 
-
                 <?php if($user) { ?>
+                    <li><a class="modal-trigger" href="/request">Request</a></li> 
+                    <li><a class="modal-trigger" href="/message">Message</a></li> 
                     <li>                          
-                        <a hraf="#!" class="model-trigger">
+                        <a href="/userprofile" class="model-trigger">
                             <?= $user['name'] ?>
                         </a>                                                     
                     </li>
-                    <li><a class="modal-trigger" href="#modal1">Sign out</a></li>
+                    <li><a href="#!" onclick="signOutButtonClick()">Sign out</a></li>
                 <?php } else { ?>       
-                    <a class="modal-trigger" href="#modal1">Sign in</a>
+                    <li><a class="modal-trigger" href="#modal1">Sign in</a></li>
                 <?php } ?>
             </ul>
 
@@ -127,11 +114,11 @@
 
         <main class="container">
             <p>
-                <!--
-                <?php /* if( $user) { echo $user['name'] ?>
-                is successfully signed in!<br/>Time left to the end of session:" . 
-                <?php echo ($session_time - $interval); } */?>  
-                -->    
+                
+                <!-- if( $user) { echo $user['name'] ?>
+                is successfully signed in!<br/>Time left to the end of session:"  
+                echo ($session_time - $interval);  --> 
+                    
             </p>
             <?php include $page_body ; ?>
         </main>
