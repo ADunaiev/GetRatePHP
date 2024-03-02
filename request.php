@@ -1,14 +1,14 @@
+
+
 <h1>Request</h1>
 
 <div class="row">
     <form class="col s12">
         <div class="row">
             <div class="input-field col s12 m6">
-                <select>  
+                <select class="cities">  
                     <option value="" disabled selected>Choose your option</option>
-                    <option value="">Shanghai</option>
-                    <option value="">Constanta</option>
-                    <option value="">Gdansk</option>
+                    <?php /* $city->get_all_cities() ;*/ ?>
                 </select>
                 <label>From point</label>
             </div>

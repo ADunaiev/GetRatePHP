@@ -32,7 +32,7 @@ class AuthController extends ApiController {
 
         $db = $this->connect_db_or_exit();
 
-        $sql = "SELECT * FROM Users u
+        $sql = "SELECT * FROM users u
             WHERE u.email = ? AND u.password = ?" ;
 
         try {
@@ -98,7 +98,7 @@ class AuthController extends ApiController {
             // перевіряємо тип файлу (розширення) на перелік допустимих
             $ext = pathinfo($_FILES['user-avatar']['name'], PATHINFO_EXTENSION);
             
-            if (strpos(".png.jpg.bmp", $ext) === false) {
+            if (strpos(".png.jpg.bmp.jpeg", $ext) === false) {
                 $result['data']['message'] = "File type error";
                 $this->end_with($result);
             }
@@ -123,7 +123,7 @@ class AuthController extends ApiController {
         $user_name = $_POST['user-name'];
         $user_password = md5( $_POST['user-password']);
         $user_avatar = $result['data']['avatar'] ;
-        $sql = "INSERT INTO Users 
+        $sql = "INSERT INTO users 
             (`email`, `name`, `password`, `avatar`)
             VALUES 
             (   

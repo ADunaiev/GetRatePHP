@@ -7,8 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.modal');
     var instances = M.Modal.init(elems);
 
-    var elems = document.querySelectorAll('select');
-    var instances = M.FormSelect.init(elems);
+    var selectElems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(selectElems);
+
+    var selectCityElems = document.querySelectorAll('.cities');
+    if (selectCityElems) {
+        selectCityElems.innerHTML = getAllCities();
+        var cityInstances = M.FormSelect.init(selectCityElems);
+    }
+
 
     // шукаємо кнопку реєстрації. якщо находим додаємо обробник
     const signUpButton = document.getElementById("signup-button");
@@ -35,6 +42,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
 });
+
+function getAllCities() {
+    console.log("hi");
+    return `    <option value="" disabled selected>Choose your option</option>
+                <option value="">Odesa</option>
+                <option value="">Kyiv</option>`;
+}
 
 function signOutButtonClick(e) {
     
@@ -114,6 +128,7 @@ function profileUpdateButtonClick(e) {
             .then(j => {
                 if (j.status == 1) {
                     window.location.href = "/";
+                    //console.log(j);
                 }
                 else {
                     M.toast({html: j['data']['message']});

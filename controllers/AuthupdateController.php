@@ -18,7 +18,7 @@ class AuthupdateController extends ApiController {
                 'message' => $_POST
             ]
         ] ;
-
+        
         $filename = "";
         if(! empty($_FILES['updated-avatar'])){
             // файл опціональний, але якщо переданий, то перевіряємо його
@@ -32,7 +32,7 @@ class AuthupdateController extends ApiController {
             // перевіряємо тип файлу (розширення) на перелік допустимих
             $ext = pathinfo($_FILES['updated-avatar']['name'], PATHINFO_EXTENSION);
             
-            if (strpos(".png.jpg.bmp", $ext) === false) {
+            if (strpos(".png.jpg.bmp.jpeg", $ext) === false) {
                 $result['data']['message'] = "File type error";
                 $this->end_with($result);
             }
@@ -90,6 +90,13 @@ class AuthupdateController extends ApiController {
         }
         $password = $_POST['updated-password'];
 
+        // валідація id
+        if(empty($_POST['user-id'])) {
+            $result['data']['message'] = "Id could not be empty";
+            $this->end_with($result);
+        }
+        $id = $_POST['user-id'];
+        
         
         $db = $this->connect_db_or_exit();
 
@@ -103,12 +110,13 @@ class AuthupdateController extends ApiController {
 
         try {
             $prep = $db->prepare($sql);
+            
             $prep->execute([
                 $email,
                 $name,
                 md5($password),
                 $filename,
-                $_POST['user-id']
+                $id
             ]);
 
         }
@@ -117,17 +125,19 @@ class AuthupdateController extends ApiController {
             $result['data']['message'] = "Connection error: " . $ex->getMessage();
             exit;
         }
-
+        
+        
         session_start();
         
-        $_SESSION['user']['id'] = $_POST['user-id'];
+        $_SESSION['user']['id'] = $id;
         $_SESSION['user']['name'] = $name;
         $_SESSION['user']['email'] = $email;
-        $_SESSION['user']['avatar'] = $filename;
-        $result['data']['message'] = "Update is successful"; 
-        $_SESSION['auth-moment'] = time();
+        $_SESSION['user']['avatar'] = $filename;       
+        $_SESSION['auth-moment'] = time(); 
         
+        //$result['data']['message'] = $id;
         $result['status'] = 1;
+        //$result['data']['message'] = "Update is successful";
         $this->end_with($result);
     }
 }

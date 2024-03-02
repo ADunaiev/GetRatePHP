@@ -26,7 +26,7 @@ else
             <div class="row">
 
                 <div class="input-field col s12" style="display: none">
-                    <input disabled value="<?= $user['id'] ?>" id="profile-id" type="text" class="validate">
+                    <input hidden value="<?= $user['id'] ?>" id="profile-id" type="text" class="validate">
                     <label for="profile-id">User id</label>
                 </div>
 

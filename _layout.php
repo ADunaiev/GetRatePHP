@@ -17,6 +17,7 @@
     else {
         $user = null;
     }
+
 ?>
 
 <!doctype html>
