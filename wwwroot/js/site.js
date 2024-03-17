@@ -10,12 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var selectElems = document.querySelectorAll('select');
     var instances = M.FormSelect.init(selectElems);
 
-    var selectCityElems = document.querySelectorAll('.cities');
-    if (selectCityElems) {
-        selectCityElems.innerHTML = getAllCities();
-        var cityInstances = M.FormSelect.init(selectCityElems);
-    }
-
+    var elems = document.querySelectorAll('.collapsible');
+    var instances = M.Collapsible.init(elems);
 
     // шукаємо кнопку реєстрації. якщо находим додаємо обробник
     const signUpButton = document.getElementById("signup-button");
@@ -41,13 +37,82 @@ document.addEventListener('DOMContentLoaded', function() {
         signOutButton.onclick = signOutButtonClick;
     }
     
+    // шукаємо кнопку відправлення запиту
+    const requestButton = document.getElementById("request-button");
+    if (requestButton) {
+        requestButton.onclick = requestButtonClick;
+    }
 });
 
-function getAllCities() {
-    console.log("hi");
-    return `    <option value="" disabled selected>Choose your option</option>
-                <option value="">Odesa</option>
-                <option value="">Kyiv</option>`;
+function requestButtonClick(e) {
+
+    const userIdInput = document.getElementById("profile-id");
+    if(!userIdInput) throw "Profile-id is not found";
+
+    const startPointSelect = document.getElementById("start-point-select");
+    if(!startPointSelect) { throw "'start-point-select' was not found";}
+    const startPointHelper = document.getElementById('start-point-helper');
+    if (!startPointHelper) throw "startPointSelect '.helper-text' is not found";
+
+    const endPointSelect = document.getElementById("end-point-select");
+    if(!endPointSelect) {throw "'end-point-select' was not found";}
+    const endPointHelper = document.getElementById('end-point-helper');
+    if (!endPointHelper) throw "endPointSelect '.helper-text' is not found";
+
+    const cargoSelect = document.getElementById("cargo-select");
+    if(!cargoSelect) {throw "'cargo-select' was not found";}
+    const cargoHelper = document.getElementById('cargo-helper');
+    if (!cargoHelper) throw "cargoSelect '.helper-text' is not found";
+
+    const grossWeightInput = document.getElementById("cargo-gw-input");
+    if(!grossWeightInput) {throw "'cargo-gw-input' was not found";}
+    const grossWeightHelper = grossWeightInput.parentNode.querySelector('.helper-text');
+    if (!grossWeightHelper) throw "grossWeightInput '.helper-text' is not found";
+
+    const requestResultMesssageInput = document.getElementById("request-result-message");
+    if (!requestResultMesssageInput) {throw "Element 'request-result-message' was not found!"}
+
+
+    
+    if (
+            validateGrossWeight(grossWeightInput, grossWeightHelper) && 
+            validateSelect(startPointSelect, startPointHelper) && 
+            validateSelect(endPointSelect, endPointHelper) && 
+            validateSelect(cargoSelect, cargoHelper)  
+        ) {
+
+            if (startPointSelect.value === endPointSelect.value) {
+                endPointHelper.innerHTML = "End point could not be the same as start point".fontcolor("red");
+            } 
+            else {
+
+                const formData = new FormData();
+                formData.append("start-point", startPointSelect.value);
+                formData.append("end-point", endPointSelect.value);
+                formData.append("cargo", cargoSelect.value);
+                formData.append("cargo-gw", grossWeightInput.value);
+                formData.append("user-id", userIdInput.value);
+
+                fetch('/requests', {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(r => r.json())
+                    .then(j => {
+                        if (j.status == 1) {
+                            window.location.href="/rates";
+                        }
+                        else {
+                            requestResultMesssageInput.className = "card-panel red lighten-3";
+                            requestResultMesssageInput.innerHTML = j.data.message;
+                        }
+                    });
+                }
+    
+            }
+
+    
+
 }
 
 function signOutButtonClick(e) {
@@ -257,6 +322,41 @@ function signupButtonClick(e) {
             }) ;
     }
 
+}
+
+function validateGrossWeight (grossWeighInput, grossWeightHelper) {
+    var check = true;
+
+    if (grossWeighInput.value == "") {
+        grossWeighInput.className = "invalid";
+        grossWeightHelper.setAttribute('data-error', "Groww Weight should not be empty!");
+        check = false;
+    } 
+    else if (grossWeighInput.value > 0) {
+        grossWeighInput.className = "valid";
+        grossWeightHelper.setAttribute('data-success', "Accepted");
+    }
+    else {
+        grossWeighInput.className = "invalid";
+        grossWeightHelper.setAttribute('data-error', "Groww Weight should be bigger than 0");
+        check = false;
+    }
+
+    return check;
+}
+
+function validateSelect (thisSelect, selectHelper) {
+    var check = true;
+
+    if (thisSelect.value == "") {   
+        selectHelper.innerHTML = "Select could not be empty!".fontcolor("red");
+        check = false;
+    } 
+    else{
+        selectHelper.innerHTML = "Accepted".fontcolor("#4caf50");
+    }
+
+    return check;
 }
 
 function validateName (nameInput, nameInputHelper) {

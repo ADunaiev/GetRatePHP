@@ -1,6 +1,7 @@
 <?php
 
 include_once "ApiController.php";
+include_once "./model/DataWorker.php";
 
 class AuthupdateController extends ApiController {
 
@@ -98,7 +99,7 @@ class AuthupdateController extends ApiController {
         $id = $_POST['user-id'];
         
         
-        $db = $this->connect_db_or_exit();
+        $db = (new DataWorker())->connect_db_or_exit();
 
         $sql = "UPDATE users 
                 SET

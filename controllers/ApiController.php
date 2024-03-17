@@ -17,31 +17,12 @@ class ApiController {
         }
     }
 
-    protected function connect_db_or_exit() {
-        try {
-            $settings = parse_ini_file( './config.ini', true);
-
-            return new PDO(
-                $settings['db']['mysql'], 
-                $settings['db']['user'], 
-                $settings['db']['password'], [
-                    PDO::ATTR_PERSISTENT => true,
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                ]);
-            }
-        
-        catch (PDOException $ex) {
-            http_response_code(500);
-            echo "Connection error: " . $ex->getMessage();
-            exit;
-        }
-    }
-
     protected function end_with($result) {
         header('Content-Type: application/json');
 
         echo json_encode($result); 
         exit;
     }
+
 
 }

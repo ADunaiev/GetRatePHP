@@ -1,0 +1,96 @@
+// выбрать двойные маршруты
+select 
+    r1.transport_type_trinity_code as first_transport, 
+    r1.start_point_name, 
+    r1.end_point_name as middle_point,
+    r2.transport_type_trinity_code as second_transport,
+    r2.end_point_name
+from 
+	routes as r1,
+    (SELECT 
+     	transport_type_trinity_code, 
+     	start_point_name,
+     	end_point_name
+     FROM routes
+     WHERE end_point_name = 'Reni' AND start_point_name != end_point_name
+    ) r2
+
+where 	r1.start_point_name = 'Ningbo' AND 
+		r1.start_point_name != r1.end_point_name AND
+        r1.end_point_name = r2.start_point_name
+group by 
+	first_transport,
+    middle_point,
+    second_transport;
+
+// выбрать двойные маршруты с названиями типа транспорта
+select 
+    t.name as first_transport, 
+    r1.start_point_name, 
+    r1.end_point_name as middle_point,
+    r2.name as second_transport,
+    r2.end_point_name
+from 
+	routes as r1,
+    transport_type as t,
+    (SELECT 
+     	t2.name, 
+     	r.start_point_name,
+     	r.end_point_name
+     FROM routes r, transport_type t2
+     WHERE 	r.end_point_name = 'Погранпереход (ВСР)' AND 
+     		r.start_point_name != r.end_point_name AND
+     		r.transport_type_trinity_code = t2.trinity_code
+    ) r2
+
+where 	r1.start_point_name = 'Ningbo' AND 
+		r1.start_point_name != r1.end_point_name AND
+        r1.end_point_name = r2.start_point_name AND
+        r1.transport_type_trinity_code = t.trinity_code 
+group by 
+	first_transport,
+    middle_point,
+    second_transport;
+
+
+// выбрать тройные маршруты с указанием вида транспорта
+select 
+    t.name as 1st_transport, 
+    r1.start_point_name, 
+    r1.end_point_name as middle_point1,
+    r2.name as 2nd_transport,
+    r2.end_point_name as middle_point2,
+    r3.name as 3rd_transport,
+    r3.end_point_name
+from 
+	routes as r1,
+    transport_type as t,
+    (SELECT 
+     	t2.name, 
+     	r.start_point_name,
+     	r.end_point_name
+     FROM routes r, transport_type t2
+     WHERE  r.start_point_name != r.end_point_name AND
+     		r.transport_type_trinity_code = t2.trinity_code
+    ) r2,
+    (SELECT 
+     	t3.name, 
+     	r.start_point_name,
+     	r.end_point_name
+     FROM routes r, transport_type t3
+     WHERE 	r.end_point_name = 'Chop' AND 
+     		r.start_point_name != r.end_point_name AND
+     		r.transport_type_trinity_code = t3.trinity_code
+    ) r3
+
+where 	r1.start_point_name = 'Ningbo' AND 
+		r1.start_point_name != r1.end_point_name AND
+        r1.end_point_name = r2.start_point_name AND
+        r1.transport_type_trinity_code = t.trinity_code AND
+        r2.end_point_name = r3.start_point_name 
+group by 
+	1st_transport,
+    middle_point1,
+    2nd_transport,
+    middle_point2,
+    3rd_transport

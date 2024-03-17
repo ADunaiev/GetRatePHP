@@ -1,6 +1,7 @@
 <?php
 
 include_once "ApiController.php";
+include_once "./model/DataWorker.php";
 
 class AuthController extends ApiController {
 
@@ -30,7 +31,8 @@ class AuthController extends ApiController {
         }        
         $password = $_GET['password'];
 
-        $db = $this->connect_db_or_exit();
+
+        $db = (new DataWorker())->connect_db_or_exit();
 
         $sql = "SELECT * FROM users u
             WHERE u.email = ? AND u.password = ?" ;
@@ -118,7 +120,7 @@ class AuthController extends ApiController {
             $result['data']['avatar'] = $filename;    
         }
 
-        $db = $this->connect_db_or_exit();
+        $db = (new DataWorker())->connect_db_or_exit();
         $user_email = $_POST['user-email'];
         $user_name = $_POST['user-name'];
         $user_password = md5( $_POST['user-password']);

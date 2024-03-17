@@ -34,6 +34,8 @@ if($uri != ""){
                 $content_type ="image/jpeg"; break;
             case 'js': 
                 $content_type ="text/javascript"; break;
+            case 'svg':
+                $content_type ="image/svg+xml";break;
             case 'css': 
             case 'html': 
                 $content_type ="text/{$ext}"; break;
@@ -56,7 +58,7 @@ if($uri != ""){
 
 $routes = [
     'request' => 'request.php',
-    'message' => 'message.php',
+    'rates' => 'rates.php',
     '' => 'index.php',
     'signup' => 'signup.php',
     'userprofile' => 'userprofile.php',
