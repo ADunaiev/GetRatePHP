@@ -48,3 +48,35 @@
                                                 </li>        
                                         </ul>
                                 </div>
+
+
+
+
+                                //3 items routes 
+                                <div class="col s12 m12">
+                                        <ul class="collection with-header">
+                                                <li class="collection-header"><h6>Option <?= $num++ ?></h6></li> 
+
+                                                <li class="collection-item valign-wrapper">
+                                                        <div class="col s12 m6 l3"><img src="img/<?=$route['image_first']?>" class="transport-type-img" alt="transport" style="max-height:50px;max-width:50px"/></div>
+                                                        <div class="col s12 m6 l3"><?= $route['1st_transport'] ?></div>
+                                                        <div class="col s12 m6 l3"><?= $route['start_point_name'] ?></div>
+                                                        <div class="col s12 m6 l3"><?= $route['middle_point1'] ?></div>
+                                                </li> 
+
+                                                <li class="collection-item valign-wrapper">
+                                                        <div class="col s12 m6 l3"><img src="img/<?=$route['image_second']?>" class="transport-type-img" alt="transport" style="max-height:50px;max-width:50px"/></div>
+                                                        <div class="col s12 m6 l3"><?= $route['2nd_transport'] ?></div>
+                                                        <div class="col s12 m6 l3"><?= $route['middle_point1'] ?></div>
+                                                        <div class="col s12 m6 l3"><?= $route['middle_point2'] ?></div>
+                                                </li> 
+
+                                                <li class="collection-item valign-wrapper">
+                                                        <div class="col s12 m6 l3"><img src="img/<?=$route['image_third']?>" class="transport-type-img" alt="transport" style="max-height:50px;max-width:50px"/></div>
+                                                        <div class="col s12 m6 l3"><?= $route['3rd_transport'] ?></div>
+                                                        <div class="col s12 m6 l3"><?= $route['middle_point2'] ?></div>
+                                                        <div class="col s12 m6 l3"><?= $route['end_point_name'] ?></div>
+                                                </li> 
+
+                                        </ul>
+                                </div>

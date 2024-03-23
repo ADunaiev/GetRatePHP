@@ -121,6 +121,40 @@ class DataWorker {
         return $rates;
     }
 
+    public function get_route_rates_by_transit_time($start_point_name, $end_point_name, $transport_type_trinity_code) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency, rs.transit_time, rs.unit_payload\n"
+                . "FROM `rates` as r \n"
+                . "LEFT JOIN routes as rt\n"
+                . "ON r.route_id = rt.id\n"
+                . "LEFT JOIN trinity_suppliers as s\n"
+                . "ON r.supplier_trinity_code = s.trinity_code\n"
+                . "LEFT JOIN routes_suppliers as rs\n"
+                . "ON rt.id = rs.route_id AND s.trinity_code = rs.supplier_id\n"
+                . "WHERE 	rt.start_point_name = ? AND\n"
+                . "		    rt.end_point_name = ? AND"
+                . "         rt.transport_type_trinity_code = ?\n"
+                . "ORDER BY rs.transit_time;";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $start_point_name,
+                $end_point_name,
+                $transport_type_trinity_code
+            ]);
+
+            $rates = $prep->fetchAll();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $rates;
+    }
+
     // пошук типу транспорту по коду трініті
     public function get_transport_type_name_by_trinity_code($ttype_id) {
 
@@ -174,5 +208,38 @@ class DataWorker {
 
         return $result;
     }
+
+    // пошук прямих маршрутів
+    public function find_simple_routes ($start_point_name, $end_point_name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT transport_type_trinity_code, 
+                       start_point_name, 
+                       end_point_name
+                FROM routes
+                WHERE 
+                    start_point_name = ? AND 
+                    end_point_name = ?
+                GROUP BY  transport_type_trinity_code
+                ";
+
+        $result = null;
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $start_point_name,
+                $end_point_name
+            ]);
+            $result = $prep->fetchAll();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+    }    
     
 }

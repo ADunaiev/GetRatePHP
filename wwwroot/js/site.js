@@ -49,6 +49,9 @@ function requestButtonClick(e) {
     const userIdInput = document.getElementById("profile-id");
     if(!userIdInput) throw "Profile-id is not found";
 
+    const preloaderRequest = document.getElementById("request-preloader");
+    if(!preloaderRequest) throw "Element 'request-preloader' is not found";
+
     const startPointSelect = document.getElementById("start-point-select");
     if(!startPointSelect) { throw "'start-point-select' was not found";}
     const startPointHelper = document.getElementById('start-point-helper');
@@ -72,6 +75,11 @@ function requestButtonClick(e) {
     const requestResultMesssageInput = document.getElementById("request-result-message");
     if (!requestResultMesssageInput) {throw "Element 'request-result-message' was not found!"}
 
+    const withRatesCheckbox = document.getElementById("with-rates-checkbox");
+    if (!withRatesCheckbox) {throw "Element 'with-rates-checkbox' was not found!"}
+
+    const sortSelect = document.getElementById("sort-select");
+    if (!sortSelect) {throw "Element 'sort-select' was not found!"}
 
     
     if (
@@ -85,13 +93,16 @@ function requestButtonClick(e) {
                 endPointHelper.innerHTML = "End point could not be the same as start point".fontcolor("red");
             } 
             else {
-
+                requestResultMesssageInput.innerHTML = "";
+                preloaderRequest.style.display = 'inline-flex';
                 const formData = new FormData();
                 formData.append("start-point", startPointSelect.value);
                 formData.append("end-point", endPointSelect.value);
                 formData.append("cargo", cargoSelect.value);
                 formData.append("cargo-gw", grossWeightInput.value);
                 formData.append("user-id", userIdInput.value);
+                formData.append("with-rates", withRatesCheckbox.checked);
+                formData.append("sort-by", sortSelect.value);
 
                 fetch('/requests', {
                     method: 'POST',
@@ -100,7 +111,10 @@ function requestButtonClick(e) {
                     .then(r => r.json())
                     .then(j => {
                         if (j.status == 1) {
-                            window.location.href="/rates";
+                            //window.location.href="/rates";
+                            
+                            window.location.reload();
+                            preloaderRequest.style.display = 'none';
                         }
                         else {
                             requestResultMesssageInput.className = "card-panel red lighten-3";

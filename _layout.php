@@ -44,7 +44,6 @@
                     <ul class="hide-on-med-and-down right">
                         <?php if($user) { ?>
                             <li><a href="/request">Request</a></li>                   
-                            <li><a href="/message">Message</a></li>
                             <li>                          
                                 <a href="/userprofile"  class="nav-text-img">
                                     <?= $user['name'] ?> 
@@ -63,7 +62,6 @@
             <ul class="sidenav right" id="mobile-demo">
                 <?php if($user) { ?>
                     <li><a class="modal-trigger" href="/request">Request</a></li> 
-                    <li><a class="modal-trigger" href="/message">Message</a></li> 
                     <li>                          
                         <a href="/userprofile" class="model-trigger">
                             <?= $user['name'] ?>
@@ -142,6 +140,7 @@
                             <li><a class="grey-text text-lighten-3" href="https://gol.ua/">Global Ocean Link</a></li>
                             <li><a class="grey-text text-lighten-3" href="https://gol.lt/">Global Ocean Link Lithuania</a></li>
                             <li><a class="grey-text text-lighten-3" href="https://globaloceanlink.pl/">Global Ocean Link Poland</a></li>
+                            <li><a class="grey-text text-lighten-3" href="https://goland.com.ua/">Global Ocean and Land</a></li>
                         </ul>
                     </div>
                 </div>
