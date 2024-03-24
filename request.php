@@ -119,7 +119,7 @@
         <div class="row valign-wrapper">
             <div class="col s9 m6">
                 <label>
-                    <input type="checkbox" id="with-rates-checkbox" <?= $withRates == true ? "checked" : "" ?> />
+                    <input type="checkbox" id="with-rates-checkbox" <?= $withRates == "true"? "checked" : "" ?> />
                     <span>Show options with rates</span>
                 </label>
             </div>
@@ -197,8 +197,8 @@
 
         <div class="row">
             <div class="col s12 m12">
-                <duv id="request-result-message">
-                <?php if ($all_routes_and_rates) { ?>
+                <duv id="request-result-message">             
+                <?php  if ($all_routes_and_rates) { ?>
                         <h4 style="font: blue">
                                 <?= count($all_routes_and_rates) ?> routes were found
                         </h4>

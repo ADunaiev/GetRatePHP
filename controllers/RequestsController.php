@@ -416,7 +416,7 @@ class RequestsController extends ApiController {
             array_multisort($total_transit_time, SORT_ASC, $all_routes_and_rates);
         }
 
-        if ($withRates == true) {
+        if ($withRates == "true") {
             $all_routes_and_rates = array_filter($all_routes_and_rates, function ($item) {
                 if ($item['with_rate'] == true ) {
                     return true;
