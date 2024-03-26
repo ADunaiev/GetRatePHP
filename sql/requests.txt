@@ -94,3 +94,50 @@ group by
     2nd_transport,
     middle_point2,
     3rd_transport
+
+
+
+    // оновлені тройні маршрути
+
+    select 
+                r1.transport_type_trinity_code as 1st_transport,
+                r1.start_point_name,          
+                r1.end_point_name as middle_point1,
+                r2.transport_type_trinity_code as 2nd_transport,        
+                r2.end_point_name as middle_point2, 
+                r3.transport_type_trinity_code as 3rd_transport,       
+                r3.end_point_name
+from routes as r1           
+left join transport_type as t
+on r1.transport_type_trinity_code = t.trinity_code
+inner join (SELECT
+            	 r.id,
+                 r.transport_type_trinity_code,          
+                 r.start_point_name,           
+                 r.end_point_name          
+                 FROM routes r, transport_type t2         
+                 WHERE 	         
+                 r.start_point_name != r.end_point_name AND         
+                 r.transport_type_trinity_code = t2.trinity_code          
+                ) as r2
+ on r1.end_point_name = r2.start_point_name
+ inner join  (SELECT 
+              		 r.id,
+                     r.transport_type_trinity_code,          
+                     r.start_point_name,           
+                     r.end_point_name          
+                     FROM routes r, transport_type t3         
+                     WHERE 	r.end_point_name = 'Kyiv' AND          
+                     r.start_point_name != r.end_point_name AND         
+                     r.transport_type_trinity_code = t3.trinity_code         
+                    ) as r3  
+ ON  r2.end_point_name = r3.start_point_name
+ where 	r1.start_point_name = 'Ningbo' AND             
+        r1.start_point_name != r1.end_point_name
+ group by            
+                	 1st_transport,           
+                     middle_point1,          
+                     2nd_transport,
+                     middle_point2,          
+                     3rd_transport,
+                     end_point_name;
