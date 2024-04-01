@@ -48,6 +48,48 @@ class DataWorker {
         return $cities;
     }
 
+    // постачальники
+    public function get_all_suppliers() {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT * FROM trinity_suppliers
+                ORDER BY `name`";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute();
+
+            $suppliers = $prep->fetchAll();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $suppliers;
+    }
+
+    // види транспорту
+    public function get_all_transport_types() {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT * FROM transport_type
+                ORDER BY `name`";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute();
+
+            $transport_types = $prep->fetchAll();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $transport_types;
+    }
+
     // вантажи
     public function get_all_cargo() {
 
@@ -67,6 +109,26 @@ class DataWorker {
             exit;
         }
         return $cargo;
+    }
+
+    // валюти
+    public function get_all_currencies(){
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT * 
+                FROM currencies";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute();
+
+            $currencies = $prep->fetchAll();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $currencies;
     }
 
     public function get_cargo_name_by_id($id) {
@@ -90,11 +152,53 @@ class DataWorker {
         return $cargo['name'];
     }   
 
+    public function get_currency_cc_by_r030($r030) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT cc 
+                FROM currencies
+                WHERE r030 = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$r030]);
+
+            $cargo = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $cargo['cc'];
+    }   
+
+    public function get_currency_by_r030($r030) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT * 
+                FROM currencies
+                WHERE r030 = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$r030]);
+
+            $cargo = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $cargo;
+    }   
+
     // пошук ставок по маршруту з сортування по вартості
     public function get_route_rates($start_point_name, $end_point_name, $transport_type_trinity_code) {
 
         $db = $this->connect_db_or_exit();
-        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency, rs.transit_time, rs.unit_payload\n"
+        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency_r030, rs.transit_time, rs.unit_payload, r.validity\n"
                 . "FROM `rates` as r \n"
                 . "LEFT JOIN routes as rt\n"
                 . "ON r.route_id = rt.id\n"
@@ -129,7 +233,7 @@ class DataWorker {
     public function get_route_rates_by_transit_time($start_point_name, $end_point_name, $transport_type_trinity_code) {
 
         $db = $this->connect_db_or_exit();
-        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency, rs.transit_time, rs.unit_payload\n"
+        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency_r030, rs.transit_time, rs.unit_payload, r.validity\n"
                 . "FROM `rates` as r \n"
                 . "LEFT JOIN routes as rt\n"
                 . "ON r.route_id = rt.id\n"
@@ -160,6 +264,87 @@ class DataWorker {
         return $rates;
     }
 
+    // пошук коду міста по назві
+    public function get_city_code_by_name($name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT id FROM trinity_cities
+                    WHERE name = ?";
+
+        $result = "";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $name
+            ]);
+            $result = $prep->fetch();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result = "Error! City was not found.";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        return $result;
+    }
+
+    // пошук коду порта по назві
+    public function get_port_code_by_name($name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT id FROM trinity_ports
+                    WHERE name = ?";
+
+        $result = false;
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $name
+            ]);
+            $result = $prep->fetch();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result = "Error! City was not found.";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        return $result;
+    }
+
+    // пошук коду погранпереходу по назві
+    public function get_bcp_code_by_name($name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT id FROM trinity_bcp
+                    WHERE name = ?";
+
+        $result = false;
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $name
+            ]);
+            $result = $prep->fetch();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result = "Error! City was not found.";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        return $result;
+    }
+
     // пошук типу транспорту по коду трініті
     public function get_transport_type_name_by_trinity_code($ttype_id) {
 
@@ -168,7 +353,7 @@ class DataWorker {
         $sql = "SELECT `name` FROM transport_type
         WHERE trinity_code = ?";
 
-        $result = "";
+        $result = false;
 
         try {
             $prep = $db->prepare($sql);
@@ -389,6 +574,210 @@ class DataWorker {
         } 
 
         return $result;
+    }
+
+    // пошук маршрута 
+    public function get_route(
+        $transport_type_trinity_code, 
+        $start_point_name, 
+        $end_point_name
+        ) {
+            $db = (new DataWorker())->connect_db_or_exit();
+
+            $sql = "SELECT *
+                    FROM routes
+                    WHERE 
+                        transport_type_trinity_code = ? AND 
+                        start_point_name = ? AND 
+                        end_point_name = ?
+                    ";
+    
+            $result = null;
+    
+            try {
+                $prep = $db->prepare($sql);
+                $prep->execute([
+                    $transport_type_trinity_code,
+                    $start_point_name,
+                    $end_point_name
+                ]);
+                $result = $prep->fetch();
+            }
+            catch(PDOException $ex) {
+                http_response_code(500);
+                echo "Connection error: " . $ex->getMessage();
+                exit;
+            } 
+    
+            return $result;
+    }
+
+    // створити новий маршрут
+    public function create_route(
+        $transport_type_trinity_code, 
+        $start_point_name, 
+        $start_point_type, 
+        $start_point_code, 
+        $end_point_name,
+        $end_point_type,
+        $end_point_code
+        ) {
+            $db = (new DataWorker())->connect_db_or_exit();
+
+            $sql = "INSERT INTO routes 
+                        (
+                            transport_type_trinity_code,
+                            start_point_name,
+                            start_point_type,
+                            start_point_code,
+                            end_point_name,
+                            end_point_type,
+                            end_point_code
+                        )
+                    VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+    
+            $result = "Error!";
+    
+            try {
+                $prep = $db->prepare($sql);
+                $prep->execute([
+                    $transport_type_trinity_code,
+                    $start_point_name,
+                    $start_point_type,
+                    $start_point_code,
+                    $end_point_name,
+                    $end_point_type,
+                    $end_point_code
+                ]);
+                $result = "Route is added to database successfully!";
+            }
+            catch(PDOException $ex) {
+                http_response_code(500);
+                echo "Connection error: " . $ex->getMessage();
+                exit;
+            } 
+            
+            return $result;
+    }
+
+    // пошук сервіса 
+    public function get_route_supplier(
+        $route_id, 
+        $supplier_id
+        ) {
+            $db = (new DataWorker())->connect_db_or_exit();
+
+            $sql = "SELECT *
+                    FROM routes_suppliers
+                    WHERE 
+                        route_id = ? AND 
+                        supplier_id = ?
+                    ";
+    
+            $result = null;
+    
+            try {
+                $prep = $db->prepare($sql);
+                $prep->execute([
+                    $route_id,
+                    $supplier_id
+                ]);
+                $result = $prep->fetch();
+            }
+            catch(PDOException $ex) {
+                http_response_code(500);
+                echo "Connection error: " . $ex->getMessage();
+                exit;
+            } 
+    
+            return $result;
+    }
+    
+    // створити новий сервіс
+    public function create_route_supplier(
+        $route_id,
+        $supplier_id, 
+        $transit_time,
+        $unit_payload
+        ) {
+            $db = (new DataWorker())->connect_db_or_exit();
+
+            $sql = "INSERT INTO routes_suppliers 
+                        (
+                            route_id,
+                            supplier_id,
+                            transit_time,
+                            unit_payload
+                        )
+                    VALUES ( ?, ?, ?, ?)";
+    
+            $result = "Error!";
+    
+            try {
+                $prep = $db->prepare($sql);
+                $prep->execute([
+                    $route_id,
+                    $supplier_id,
+                    $transit_time,
+                    $unit_payload
+                ]);
+                $result = "Service is added to database successfully!";
+            }
+            catch(PDOException $ex) {
+                http_response_code(500);
+                echo "Connection error: " . $ex->getMessage();
+                exit;
+            } 
+            
+            return $result;
+    }
+
+    // створити нову ставку
+    public function create_rate(
+        $date,
+        $supplier_id, 
+        $route_id,
+        $amount,
+        $currency,
+        $validity,
+        $source
+        ) {
+            $db = (new DataWorker())->connect_db_or_exit();
+
+            $sql = "INSERT INTO rates 
+                        (
+                            date,
+                            supplier_trinity_code,
+                            route_id,
+                            amount,
+                            currency_r030,
+                            validity,
+                            source
+                        )
+                    VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+    
+            $result = "Error";
+    
+            try {
+                $prep = $db->prepare($sql);
+                $prep->execute([
+                    $date,
+                    $supplier_id,
+                    $route_id,
+                    $amount,
+                    $currency,
+                    $validity,
+                    $source
+                ]);
+                $result = "Rate is added to database successfully!";
+            }
+            catch(PDOException $ex) {
+                http_response_code(500);
+                echo "Connection error: " . $ex->getMessage();
+                exit;
+            } 
+            
+            return $result;
     }
 
 }

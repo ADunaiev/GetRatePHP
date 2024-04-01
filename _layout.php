@@ -44,6 +44,7 @@
                     <ul class="hide-on-med-and-down right">
                         <?php if($user) { ?>
                             <li><a href="/request">Request</a></li>                   
+                            <li><a href="/add_rate"><i class="material-icons">add</i></a></li>                   
                             <li>                          
                                 <a href="/userprofile"  class="nav-text-img">
                                     <?= $user['name'] ?> 
@@ -62,6 +63,7 @@
             <ul class="sidenav right" id="mobile-demo">
                 <?php if($user) { ?>
                     <li><a class="modal-trigger" href="/request">Request</a></li> 
+                    <li><a class="modal-trigger" href="/add_rate"><i class="material-icons">add</i></a></li> 
                     <li>                          
                         <a href="/userprofile" class="model-trigger">
                             <?= $user['name'] ?>

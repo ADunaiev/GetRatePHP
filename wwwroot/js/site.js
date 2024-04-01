@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.collapsible');
     var instances = M.Collapsible.init(elems);
 
+    var elems = document.querySelectorAll('.datepicker');
+    var instances = M.Datepicker.init(elems, {
+        format: 'yy-mm-dd'
+    });
+
     // шукаємо кнопку реєстрації. якщо находим додаємо обробник
     const signUpButton = document.getElementById("signup-button");
     if(signUpButton){
@@ -42,7 +47,137 @@ document.addEventListener('DOMContentLoaded', function() {
     if (requestButton) {
         requestButton.onclick = requestButtonClick;
     }
+
+    // шукаємо кнопку додавання ставки
+    const addRateButton = document.getElementById("add-rate-button");
+    if (addRateButton) {
+        addRateButton.onclick = addRateButtonClick;
+    }
 });
+
+function addRateButtonClick(e) {
+    const userIdInput = document.getElementById("add-rate-user");
+    if(!userIdInput) throw "'add-rate-user' is not found";
+
+    const addRateSupplierSelect = document.getElementById("add-rate-supplier-select");
+    if(!addRateSupplierSelect) { throw "'add-rate-supplier-select' was not found";}
+    const addRateSupplierHelper = document.getElementById('add-rate-supplier-helper');
+    if (!addRateSupplierHelper) throw "add-rate-supplier '.helper-text' is not found";
+
+    const addRateTransportTypeSelect = document.getElementById("add-rate-transport-type-select");
+    if(!addRateTransportTypeSelect) { throw "'add-rate-transport-type-select' was not found";}
+    const addRateTransportTypeHelper = document.getElementById('add-rate-transport-type-helper');
+    if (!addRateTransportTypeHelper) throw "add-rate-transport-type '.helper-text' is not found";
+
+    const startPointSelect = document.getElementById("add-rate-start-point-select");
+    if(!startPointSelect) { throw "'add-rate-start-point-select' was not found";}
+    const startPointHelper = document.getElementById('add-rate-start-point-helper');
+    if (!startPointHelper) throw "add-rate-startPointSelect '.helper-text' is not found";
+
+    const endPointSelect = document.getElementById("add-rate-end-point-select");
+    if(!endPointSelect) { throw "'add-rate-end-point-select' was not found";}
+    const endPointHelper = document.getElementById('add-rate-end-point-helper');
+    if (!endPointHelper) throw "add-rate-endPointSelect '.helper-text' is not found";
+
+    const transitTimeInput = document.getElementById("add-rate-transit-time-input");
+    if(!transitTimeInput) { throw "'add-rate-transit-time-input' was not found";}
+    const transitTimeHelper = document.getElementById('add-rate-transit-time-helper');
+    if (!transitTimeHelper) throw "Element 'add-rate-transit-time-helper' is not found";
+
+    const unitPayloadInput = document.getElementById("add-rate-payload-input");
+    if(!unitPayloadInput) { throw "'add-rate-payload-input' was not found";}
+    const unitPayloadHelper = document.getElementById('add-rate-unit-payload-helper');
+    if (!unitPayloadHelper) throw "Element 'add-rate-unit-payload-helper' is not found";
+
+    const addRateAmountInput = document.getElementById("add-rate-amount-input");
+    if(!addRateAmountInput) { throw "'add-rate-amount-input' was not found";}
+    const addRateAmountHelper = document.getElementById('add-rate-amount-helper');
+    if (!addRateAmountHelper) throw "Element 'add-rate-amount-helper' is not found";
+
+    const addRateCurrencySelect = document.getElementById("add-rate-currency-select");
+    if(!addRateCurrencySelect) { throw "'add-rate-currency-select' was not found";}
+    const addRateCurrencyHelper = document.getElementById('add-rate-currency-helper');
+    if (!addRateCurrencyHelper) throw "Element 'add-rate-currency-helper' is not found";
+
+    const addRateValidityInput = document.getElementById("add-rate-validity-input");
+    if(!addRateValidityInput) { throw "'add-rate-validity-input' was not found";}
+    const addRateValidityHelper = document.getElementById('add-rate-validity-helper');
+    if (!addRateValidityHelper) throw "Element 'add-rate-validity-helper' is not found";
+
+    const addRateResultMesssage = document.getElementById("add-rate-result");
+    if (!addRateResultMesssage) {throw "Element 'add-rate-result' was not found!"}
+    
+    const addServiceBlock = document.getElementById("add-rate-service-block");
+    if (!addServiceBlock) {throw "Element 'add-rate-service-block' was not found!"}
+
+    if (
+        validateSelect(addRateSupplierSelect, addRateSupplierHelper) &&
+        validateSelect(addRateTransportTypeSelect, addRateTransportTypeHelper) &&
+        validateSelect(startPointSelect, startPointHelper) &&
+        validateSelect(endPointSelect, endPointHelper) && 
+        validateNumberInput(addRateAmountInput, addRateAmountHelper) && 
+        validateSelect(addRateCurrencySelect, addRateCurrencyHelper) && 
+        validateValidityDate(addRateValidityInput, addRateValidityHelper)
+    ) {
+        if (startPointSelect.value == endPointSelect.value) {
+            endPointHelper.innerHTML = "End point could not be the same as start point".fontcolor("red");
+        }
+        else {
+
+            if(addServiceBlock.style.display == "inline" &&
+                !(
+                    validateNumberInput(transitTimeInput, transitTimeHelper) &&
+                    validateNumberInput(unitPayloadInput, unitPayloadHelper)
+                )
+                ) {
+                    addRateResultMesssage.innerHTML = "Please enter correct data";
+            }
+            else {
+                addRateResultMesssage.innerHTML = "";
+                const formData = new FormData();
+                formData.append("user-id", userIdInput.value);
+                formData.append("supplier-trinity-code", addRateSupplierSelect.value);
+                formData.append("transport-type-trinity-code", addRateTransportTypeSelect.value);
+                formData.append("start-point", startPointSelect.value);
+                formData.append("end-point", endPointSelect.value);
+                formData.append("transit-time", transitTimeInput.value);
+                formData.append("unit-payload", unitPayloadInput.value);
+                formData.append("amount", addRateAmountInput.value);
+                formData.append("currency", addRateCurrencySelect.value);
+                formData.append("validity", addRateValidityInput.value);
+
+                console.log(addRateValidityInput.value);
+    
+                fetch('/addrate', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then (r => r.json())
+                    .then (j => {
+                        console.log(j);
+    
+                        if(j.status == 0) {
+                            addRateResultMesssage.innerHTML = j.data.message;
+                            addRateResultMesssage.style.background = "lightpink";
+                        }
+                        else if (j.status == 2) {
+                            addRateResultMesssage.innerHTML = j.data.message;
+                            addServiceBlock.style.display = "inline";
+                            addRateResultMesssage.style.background = "lightyellow";
+                        }
+                        else if (j.status == 1) {
+                            addRateResultMesssage.innerHTML = j.data.message;
+                            addRateResultMesssage.style.background = "lightgreen";
+
+                            setTimeout(function() {
+                                window.location.reload();
+                              }, 3000);
+                        }
+                    });
+            }
+        }
+    }
+}
 
 function requestButtonClick(e) {
 
@@ -72,6 +207,11 @@ function requestButtonClick(e) {
     const grossWeightHelper = grossWeightInput.parentNode.querySelector('.helper-text');
     if (!grossWeightHelper) throw "grossWeightInput '.helper-text' is not found";
 
+    const currencyRequestSelect = document.getElementById("request-currency-select");
+    if(!currencyRequestSelect) {throw "'request-currency-select' was not found";}
+    const currencyRequestHelper = document.getElementById("request-currency-helper");
+    if (!currencyRequestHelper) {throw "Element 'request-currency-helper' is not found";}
+
     const requestResultMesssageInput = document.getElementById("request-result-message");
     if (!requestResultMesssageInput) {throw "Element 'request-result-message' was not found!"}
 
@@ -81,12 +221,12 @@ function requestButtonClick(e) {
     const sortSelect = document.getElementById("sort-select");
     if (!sortSelect) {throw "Element 'sort-select' was not found!"}
 
-    
     if (
             validateGrossWeight(grossWeightInput, grossWeightHelper) && 
             validateSelect(startPointSelect, startPointHelper) && 
             validateSelect(endPointSelect, endPointHelper) && 
-            validateSelect(cargoSelect, cargoHelper)  
+            validateSelect(cargoSelect, cargoHelper) && 
+            validateSelect(currencyRequestSelect, currencyRequestHelper)
         ) {
 
             if (startPointSelect.value === endPointSelect.value) {
@@ -103,6 +243,7 @@ function requestButtonClick(e) {
                 formData.append("user-id", userIdInput.value);
                 formData.append("with-rates", withRatesCheckbox.checked);
                 formData.append("sort-by", sortSelect.value);
+                formData.append("currency", currencyRequestSelect.value);
 
                 fetch('/requests', {
                     method: 'POST',
@@ -373,6 +514,20 @@ function validateSelect (thisSelect, selectHelper) {
     return check;
 }
 
+function validateNumberInput (thisInput, inputHelper) {
+    var check = true;
+
+    if (thisInput.value <= 0) {   
+        inputHelper.innerHTML = "Value should be positive!".fontcolor("red");
+        check = false;
+    } 
+    else{
+        inputHelper.innerHTML = "Accepted".fontcolor("#4caf50");
+    }
+
+    return check;
+}
+
 function validateName (nameInput, nameInputHelper) {
     var check = true;
     
@@ -397,6 +552,31 @@ function validateName (nameInput, nameInputHelper) {
         nameInput.className = "valid";
         nameInputHelper.setAttribute('data-success',"Accepted!")
     } 
+
+    return check;
+}
+
+function validateValidityDate (dateInput, dateInputHelper) {
+    var check = true;
+
+    const date = new Date();
+    let todayDay = date.getTime();
+    let validityDay = (new Date(dateInput.value)).getTime();
+    
+    if (dateInput.value != "") {
+
+        if (validityDay < todayDay) {
+            dateInput.className = "invalid";
+            dateInputHelper.setAttribute('data-error', "Please enter future date");
+            check = false;
+    
+        }
+        else {
+            dateInput.className = "valid";
+            dateInputHelper.setAttribute('data-success',"Accepted!")
+        } 
+    }
+
 
     return check;
 }

@@ -62,6 +62,7 @@ $routes = [
     '' => 'index.php',
     'signup' => 'signup.php',
     'userprofile' => 'userprofile.php',
+    'add_rate' => 'add_rate.php'
 ];
 
 if(isset($routes[$uri])) { // у маршрутах є відповідний запис

@@ -29,7 +29,12 @@ class RequestsController extends ApiController {
         $cargo_gw = $_POST['cargo-gw'];
         $withRates = $_POST['with-rates'];
         $sort_by = $_POST['sort-by'];
+        $currency = $_POST['currency'];
+        $dataWorker = new DataWorker();
 
+        $currency_cc = $dataWorker->get_currency_cc_by_r030($currency);
+
+        // валідація даних
         if ($user_id == "") {
             $result['data']['message'] = "Error. You are not signed in!";
             $this->end_with($result);
@@ -52,6 +57,10 @@ class RequestsController extends ApiController {
         }
         if ($cargo_gw == "") {
             $result['data']['message'] = "Error. Cargo gross weight could not be empty!";
+            $this->end_with($result);
+        }
+        if ($currency == "") {
+            $result['data']['message'] = "Error. Currency could not be empty!";
             $this->end_with($result);
         }
 
@@ -80,8 +89,7 @@ class RequestsController extends ApiController {
 
         // формуємо масив для передачі результата
         $all_routes_and_rates = array();
-        $dataWorker = new DataWorker();
-
+        
         // запускаємо пошук прямих маршрутів
         $routes = $dataWorker->find_simple_routes($start_point, $end_point);
 
@@ -115,7 +123,23 @@ class RequestsController extends ApiController {
             $units_quantity = $route_rates != null ? ceil( $cargo_gw / $route_rates[0]['unit_payload']) : 0;
             $route_rate_amount = $route_rates != null ? $route_rates[0]['amount'] : 0;
             $route_transit_time = $route_rates != null ? $route_rates[0]['transit_time'] : 0;
+            $route_rate_currency_cc = $route_rates != null ? $dataWorker->get_currency_cc_by_r030($route_rates[0]['currency_r030']) : "";
+
+            $route_rate_currency_r030 = $route_rates != null ? $route_rates[0]['currency_r030'] : 1;
+
+            $route_sum = $units_quantity * $route_rate_amount;
+
             
+            if ($route_rate_currency_r030 != $currency) {
+                $currency_1 = $dataWorker->get_currency_by_r030($route_rate_currency_r030);
+                $currency_2 = $dataWorker->get_currency_by_r030($currency);
+
+                $temp = $route_sum * $currency_1['rate'] / $currency_2['rate'];
+                $route_sum = round($temp, 2);
+            }
+
+            // $currency_cc = $dataWorker->get_currency_cc_by_r030($currency);
+
             $route_item = array(
                 "start_point_name" => $route['start_point_name'],
                 "end_point_name" => $route['end_point_name'],
@@ -126,15 +150,16 @@ class RequestsController extends ApiController {
                 "units_quantity" => $units_quantity,
                 "route_transit_time" => $route_transit_time,
                 "route_rate_amount" => $route_rate_amount,
-                "route_rate_currency" => $route_rates != null ? $route_rates[0]['currency'] : 0,
-                "route_sum" => $units_quantity * $route_rate_amount
+                "route_rate_currency" => $route_rate_currency_cc,
+                "route_sum" => $route_sum
             );
 
             $with_rate =  $route_rate_amount > 0 ? true : false;
 
             $new_route = array(
                 "routes" => array($route_item),
-                "total_sum" => $route_rate_amount * $units_quantity,
+                "total_sum" => $route_sum,
+                "currency" => $currency_cc,
                 "total_transit_time" => $route_transit_time,
                 "with_rate" => $with_rate
                 );
@@ -179,6 +204,20 @@ class RequestsController extends ApiController {
             $units_quantity1 = $route1_rates != null ? ceil( $cargo_gw / $route1_rates[0]['unit_payload']) : 0;
             $route1_rate_amount = $route1_rates != null ? $route1_rates[0]['amount'] : 0;
             $route1_transit_time = $route1_rates != null ? $route1_rates[0]['transit_time'] : 0;
+            $route1_rate_currency_cc = $route1_rates != null ? $dataWorker->get_currency_cc_by_r030($route1_rates[0]['currency_r030']) : "";
+
+            $route1_rate_currency_r030 = $route1_rates != null ? $route1_rates[0]['currency_r030'] : 1;
+
+            $route1_sum = $units_quantity1 * $route1_rate_amount;
+
+            
+            if ($route1_rate_currency_r030 != $currency) {
+                $currency_1 = $dataWorker->get_currency_by_r030($route1_rate_currency_r030);
+                $currency_2 = $dataWorker->get_currency_by_r030($currency);
+
+                $temp = $route1_sum * $currency_1['rate'] / $currency_2['rate'];
+                $route1_sum = round($temp, 2);
+            }
             
             $route1_item = array(
                 "start_point_name" => $route['start_point_name'],
@@ -190,8 +229,8 @@ class RequestsController extends ApiController {
                 "units_quantity" => $units_quantity1,
                 "route_transit_time" => $route1_transit_time,
                 "route_rate_amount" => $route1_rate_amount,
-                "route_rate_currency" => $route1_rates != null ? $route1_rates[0]['currency'] : 0,
-                "route_sum" => $units_quantity1 * $route1_rate_amount
+                "route_rate_currency" => $route1_rate_currency_cc,
+                "route_sum" => $route1_sum
             );
 
             // заповнюємо другий відрізок
@@ -224,7 +263,20 @@ class RequestsController extends ApiController {
             $units_quantity2 = $route2_rates != null ? ceil( $cargo_gw / $route2_rates[0]['unit_payload']) : 0;
             $route2_rate_amount = $route2_rates != null ? $route2_rates[0]['amount'] : 0;
             $route2_transit_time = $route2_rates != null ? $route2_rates[0]['transit_time'] : 0;
+            $route2_rate_currency_cc = $route2_rates != null ? $dataWorker->get_currency_cc_by_r030($route2_rates[0]['currency_r030']) : "";
             
+            $route2_rate_currency_r030 = $route2_rates != null ? $route2_rates[0]['currency_r030'] : 1;
+
+            $route2_sum = $units_quantity2 * $route2_rate_amount;
+
+            
+            if ($route2_rate_currency_r030 != $currency) {
+                $currency_1 = $dataWorker->get_currency_by_r030($route2_rate_currency_r030);
+                $currency_2 = $dataWorker->get_currency_by_r030($currency);
+
+                $temp = $route2_sum * $currency_1['rate'] / $currency_2['rate'];
+                $route2_sum = round($temp, 2);
+            }
             $route2_item = array(
                 "start_point_name" => $route['middle_point'],
                 "end_point_name" => $route['end_point_name'],
@@ -235,14 +287,15 @@ class RequestsController extends ApiController {
                 "units_quantity" => $units_quantity2,
                 "route_transit_time" => $route2_transit_time,
                 "route_rate_amount" => $route2_rate_amount,
-                "route_rate_currency" => $route2_rates != null ? $route2_rates[0]['currency'] : 0,
-                "route_sum" => $units_quantity2 * $route2_rate_amount
+                "route_rate_currency" => $route2_rate_currency_cc,
+                "route_sum" => $route2_sum
             );
 
             $with_rate = ($route1_rate_amount > 0 && $route2_rate_amount > 0) ? true : false;
             // поєднуємо результати
             $new_route = array("routes" => array($route1_item, $route2_item));
-            $new_route['total_sum'] = $route1_rate_amount * $units_quantity1 + $route2_rate_amount * $units_quantity2;
+            $new_route['total_sum'] = $route1_sum + $route2_sum;
+            $new_route['currency'] = $currency_cc;
             $new_route['total_transit_time'] = $route1_transit_time + $route2_transit_time;
             $new_route['with_rate'] = $with_rate;
 
@@ -285,7 +338,22 @@ class RequestsController extends ApiController {
             $units_quantity1 = $route1_rates != null ? ceil( $cargo_gw / $route1_rates[0]['unit_payload']) : 0;
             $route1_rate_amount = $route1_rates != null ? $route1_rates[0]['amount'] : 0;
             $route1_transit_time = $route1_rates != null ? $route1_rates[0]['transit_time'] : 0;
+            $route1_rate_currency_cc = $route1_rates != null ? $dataWorker->get_currency_cc_by_r030($route1_rates[0]['currency_r030']) : "";
             
+            $route1_rate_currency_r030 = $route1_rates != null ? $route1_rates[0]['currency_r030'] : 1;
+
+            $route1_sum = $units_quantity1 * $route1_rate_amount;
+
+            
+            if ($route1_rate_currency_r030 != $currency) {
+                $currency_1 = $dataWorker->get_currency_by_r030($route1_rate_currency_r030);
+                $currency_2 = $dataWorker->get_currency_by_r030($currency);
+
+                $temp = $route1_sum * $currency_1['rate'] / $currency_2['rate'];
+                $route1_sum = round($temp, 2);
+            }
+
+
             $route1_item = array(
                 "start_point_name" => $route['start_point_name'],
                 "end_point_name" => $route['middle_point1'],
@@ -296,8 +364,8 @@ class RequestsController extends ApiController {
                 "units_quantity" => $units_quantity1,
                 "route_transit_time" => $route1_transit_time,
                 "route_rate_amount" => $route1_rate_amount,
-                "route_rate_currency" => $route1_rates != null ? $route1_rates[0]['currency'] : 0,
-                "route_sum" => $units_quantity1 * $route1_rate_amount
+                "route_rate_currency" => $route1_rate_currency_cc,
+                "route_sum" => $route1_sum
             );
 
             // заповнюємо другий відрізок
@@ -330,7 +398,20 @@ class RequestsController extends ApiController {
             $units_quantity2 = $route2_rates != null ? ceil( $cargo_gw / $route2_rates[0]['unit_payload']) : 0;
             $route2_rate_amount = $route2_rates != null ? $route2_rates[0]['amount'] : 0;
             $route2_transit_time = $route2_rates != null ? $route2_rates[0]['transit_time'] : 0;
+            $route2_rate_currency_cc = $route2_rates != null ? $dataWorker->get_currency_cc_by_r030($route2_rates[0]['currency_r030']) : "";
             
+            $route2_rate_currency_r030 = $route2_rates != null ? $route2_rates[0]['currency_r030'] : 1;
+
+            $route2_sum = $units_quantity2 * $route2_rate_amount;
+            
+            if ($route2_rate_currency_r030 != $currency) {
+                $currency_1 = $dataWorker->get_currency_by_r030($route2_rate_currency_r030);
+                $currency_2 = $dataWorker->get_currency_by_r030($currency);
+
+                $temp = $route2_sum * $currency_1['rate'] / $currency_2['rate'];
+                $route2_sum = round($temp, 2);
+            }
+
             $route2_item = array(
                 "start_point_name" => $route['middle_point1'],
                 "end_point_name" => $route['middle_point2'],
@@ -341,8 +422,8 @@ class RequestsController extends ApiController {
                 "units_quantity" => $units_quantity2,
                 "route_transit_time" => $route2_transit_time,
                 "route_rate_amount" => $route2_rate_amount,
-                "route_rate_currency" => $route2_rates != null ? $route2_rates[0]['currency'] : 0,
-                "route_sum" => $units_quantity2 * $route2_rate_amount
+                "route_rate_currency" => $route2_rate_currency_cc,
+                "route_sum" => $route2_sum
             );
 
             // заповнюємо третій відрізок
@@ -375,7 +456,20 @@ class RequestsController extends ApiController {
             $units_quantity3 = $route3_rates != null ? ceil( $cargo_gw / $route3_rates[0]['unit_payload']) : 0;
             $route3_rate_amount = $route3_rates != null ? $route3_rates[0]['amount'] : 0;
             $route3_transit_time = $route3_rates != null ? $route3_rates[0]['transit_time'] : 0;
+            $route3_rate_currency_cc = $route3_rates != null ? $dataWorker->get_currency_cc_by_r030($route3_rates[0]['currency_r030']) : "";
             
+            $route3_rate_currency_r030 = $route3_rates != null ? $route3_rates[0]['currency_r030'] : 1;
+
+            $route3_sum = $units_quantity3 * $route3_rate_amount;
+
+            if ($route3_rate_currency_r030 != $currency) {
+                $currency_1 = $dataWorker->get_currency_by_r030($route3_rate_currency_r030);
+                $currency_2 = $dataWorker->get_currency_by_r030($currency);
+
+                $temp = $route3_sum * $currency_1['rate'] / $currency_2['rate'];
+                $route3_sum = round($temp, 2);
+            }
+
             $route3_item = array(
                 "start_point_name" => $route['middle_point2'],
                 "end_point_name" => $route['end_point_name'],
@@ -386,17 +480,16 @@ class RequestsController extends ApiController {
                 "units_quantity" => $units_quantity3,
                 "route_transit_time" => $route3_transit_time,
                 "route_rate_amount" => $route3_rate_amount,
-                "route_rate_currency" => $route3_rates != null ? $route3_rates[0]['currency'] : 0,
-                "route_sum" => $units_quantity3 * $route3_rate_amount
+                "route_rate_currency" => $route3_rate_currency_cc,
+                "route_sum" => $route3_sum
             );
 
             $with_rate = ($route1_rate_amount > 0 && $route2_rate_amount > 0 && $route3_rate_amount > 0) ? true : false;
 
             // поєднуємо результати
             $new_route = array("routes" => array($route1_item, $route2_item, $route3_item));
-            $new_route['total_sum'] = $route1_rate_amount * $units_quantity1 + 
-                                      $route2_rate_amount * $units_quantity2 +
-                                      $route3_rate_amount * $units_quantity3;
+            $new_route['total_sum'] = $route1_sum + $route2_sum + $route3_sum;
+            $new_route['currency'] = $currency_cc;
             $new_route['total_transit_time'] =  $route1_transit_time +
                                                 $route2_transit_time +
                                                 $route3_transit_time;
@@ -438,6 +531,7 @@ class RequestsController extends ApiController {
         $_SESSION['all_routes_and_rates'] = $all_routes_and_rates;
         $_SESSION['with-rates'] = $withRates;
         $_SESSION['sort-by'] = $sort_by;
+        $_SESSION['currency'] = $currency;
 
 
         $result['status'] = 1;

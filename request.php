@@ -5,6 +5,7 @@
     $dataWorker = new DataWorker();
     $cities = $dataWorker->get_all_cities();
     $cargo = $dataWorker->get_all_cargo();
+    $currencies = $dataWorker->get_all_currencies();
 
     if (isset($_SESSION['routes'])) {
         $routes = $_SESSION['routes'];
@@ -63,6 +64,13 @@
     else {
             $all_routes_and_rates = null;
     }
+
+    if (isset($_SESSION['currency'])) {
+        $currency_selected = $_SESSION['currency'];
+    }
+    else {
+            $currency_selected = "";
+    }
 ?>
 <h1>Request</h1>
 
@@ -76,6 +84,7 @@
             </div>
 
             <div class="input-field col s12 m6">
+                <i class="material-icons prefix cyan-text text-darken-1">location_on</i>
                 <select id="start-point-select">  
                     <option value="" disabled selected>Choose your option</option>                  
                     <?php foreach ($cities as $city) {?>
@@ -86,6 +95,7 @@
                 <span class="helper-text" id="start-point-helper" data-error="wrong" data-success="right">Please choose start point</span>
             </div>
             <div class="input-field col s12 m6">
+                <i class="material-icons prefix cyan-text text-darken-1">location_on</i>
                 <select id="end-point-select">
                     <option value="" disabled selected>Choose your option</option>
                     <?php foreach ($cities as $city) {?>
@@ -96,6 +106,7 @@
                 <span class="helper-text" id="end-point-helper" data-error="wrong" data-success="right">Please choose end point</span>
             </div>
             <div class="input-field col s12 m6">
+                <i class="material-icons prefix cyan-text text-darken-1">center_focus_strong</i>
                 <select id="cargo-select">
                     <option value="" disabled selected>Choose your option</option>
                     <?php foreach ($cargo as $cargo_item) {?>
@@ -107,29 +118,42 @@
             </div>
 
             <div class="input-field col s12 m6">
+                <i class="material-icons prefix cyan-text text-darken-1">file_upload</i>
                 <input id="cargo-gw-input" type="text" class="validate" value="<?= $cargo_gw != 0 ? $cargo_gw : "" ?>">
                 <label for="cargo-gw-input">Gross weight, mt</label>
                 <span class="helper-text" data-error="wrong" data-success="right"></span>
             </div>
 
-
-
         </div>
 
-        <div class="row valign-wrapper">
-            <div class="col s9 m6">
-                <label>
-                    <input type="checkbox" id="with-rates-checkbox" <?= $withRates == "true"? "checked" : "" ?> />
-                    <span>Show options with rates</span>
-                </label>
+        <div class="row">
+
+            <div class="input-field col s3 m3">
+                <i class="material-icons prefix cyan-text text-darken-1">attach_money</i>
+                <select id="request-currency-select">  
+                    <option value="" disabled selected>Choose</option>                  
+                    <?php foreach ($currencies as $currency) {?>
+                        <option value="<?= $currency['r030'] ?>" <?= $currency['r030'] == $currency_selected ? "selected" : "" ?>><?= $currency['cc'] ?></option>
+                    <?php }?>
+                </select>
+                <label>currency</label>
+                <span class="helper-text" id="request-currency-helper" data-error="wrong" data-success="right">Please choose currency</span>
             </div>
 
-            <div class="input-field col s3 m6">
+            <div class="input-field col s3 m3">
+                <i class="material-icons prefix cyan-text text-darken-1">sort</i>
                 <select id="sort-select">
                     <option value="price">Price</option>
                     <option value="time" <?= $sortBy == "time" ? "selected" : "" ?>>Time</option>
                 </select>
                 <label>Sort by</label>
+            </div>
+
+            <div class="col s6 m6 input-field" style="">
+                <label>
+                    <input type="checkbox" id="with-rates-checkbox" <?= $withRates == "true"? "checked" : "" ?> />
+                    <span>Show options with rates</span>
+                </label>
             </div>
         </div>
 
@@ -197,7 +221,7 @@
 
         <div class="row">
             <div class="col s12 m12">
-                <duv id="request-result-message">             
+                <div id="request-result-message">             
                 <?php  if ($all_routes_and_rates) { ?>
                         <h4 style="font: blue">
                                 <?= count($all_routes_and_rates) ?> routes were found
@@ -212,23 +236,35 @@
                                                 
                                                 <li>
                                                         <div class="collapsible-header valign-wrapper">
-                                                                <div class="col s12 m2 l1"><img src="img/<?=$route_item['transport_type_img']?>" class="transport-type-img" alt="transport" style="max-height:50px;max-width:50px"/></div>
-                                                                <div class="col s12 m6 l3"><?= $route_item['transport_type_name'] ?></div>
-                                                                <div class="col s12 m6 l3"><?= $route_item['start_point_name'] ?></div>
-                                                                <div class="col s12 m6 l3"><?= $route_item['end_point_name'] ?></div>
-                                                                <div class="col s12 m6 l3"><b><?= $route_item['units_quantity'] . " units"  ?></b></div>
-                                                                <div class="col s12 m6 l3"><b><?= $route_item['route_rate_amount'] . " " . $route_item['route_rate_currency'] . " / unit" ?></b></div>
-                                                                <div class="col s12 m6 l3"><b><?= $route_item['route_transit_time'] . " days" ?></b></div>
+
+                                                                <div class="col s2 m3 l3 xl3"><img src="img/<?=$route_item['transport_type_img']?>" class="transport-type-img" alt="transport" style="max-height:50px;max-width:50px"/></div>
+                                                                <div class="col s4 m3 l3 xl3"><?= $route_item['transport_type_name'] ?></div>
+                                                                <div class="col s3 m3 l3 xl3"><?= $route_item['start_point_name'] ?></div>
+                                                                <div class="col s3 m3 l3 xl3"><?= $route_item['end_point_name'] ?></div>
+                                                                <div class="col s3 m2 l3 xl3"><b><?= $route_item['units_quantity'] . " units"  ?></b></div>
+                                                                <div class="col s3 m2 l3 xl3"><b><?= $route_item['route_rate_amount'] . " " . $route_item['route_rate_currency'] . " / unit" ?></b></div>
+                                                                <div class="col s3 m2 l3 xl3"><b><?= $route_item['route_transit_time'] . " days" ?></b></div>
+
+
                                                         </div>
                                                         <div class="collapsible-body">
 
                                                                 <ul class="collection">
-                                                                        <?php foreach($route_item['rates'] as $rate) { ?>
+                                                                                <li class="collection-item valign-wrapper">
+                                                                                        <div class="col s12 m6 l3"><b>Supplier</b></div>
+                                                                                        <div class="col s12 m6 l3"><b>Date</b></div>
+                                                                                        <div class="col s12 m6 l3"><b>Amount</b></div>
+                                                                                        <div class="col s12 m6 l3"><b>Transit time</b></div>
+                                                                                        <div class="col s12 m6 l3"><b>Validity</b></div>      
+                                                                                </li>
+                                                                        <?php foreach($route_item['rates'] as $rate) { 
+                                                                                $rate_currency = $dataWorker->get_currency_cc_by_r030($rate['currency_r030']); ?>
                                                                                 <li class="collection-item valign-wrapper">
                                                                                         <div class="col s12 m6 l3"><?= $rate['name'] ?></div>
                                                                                         <div class="col s12 m6 l3"><?= $rate['rate_day'] ?></div>
-                                                                                        <div class="col s12 m6 l3"><?= $rate['amount'] . " " . $rate['currency'] . " / unit" ?></div>
+                                                                                        <div class="col s12 m6 l3"><?= $rate['amount'] . " " . $rate_currency . " / unit" ?></div>
                                                                                         <div class="col s12 m6 l3"><?= $rate['transit_time'] . " days" ?></div>
+                                                                                        <div class="col s12 m6 l3"><?= $rate['validity'] != "" ? $rate['validity'] : "" ?></div>
                                                                                 </li>
                                                                         <?php } ?>
                                                                 </ul>
@@ -236,7 +272,7 @@
                                                 </li>
                                         <?php } ?>
                                 </ul>
-                                <h6><b>Total: <?= $route['total_sum'] . " per lot, transit time: " . $route['total_transit_time'] . " days" ?></b></h6></br>
+                                <h6><b>Total: <?= $route['total_sum'] . " " . $route['currency'] . " per lot, transit time: " . $route['total_transit_time'] . " days" ?></b></h6></br>
                         <?php }
 
 
