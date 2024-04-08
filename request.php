@@ -51,6 +51,13 @@
             $withRates = "";
     }
 
+    if (isset($_SESSION['valid-rates'])) {
+        $validRates = $_SESSION['valid-rates'];
+    }
+    else {
+            $validRates = "";
+    }
+
     if (isset($_SESSION['sort-by'])) {
         $sortBy = $_SESSION['sort-by'];
     }
@@ -128,7 +135,7 @@
 
         <div class="row">
 
-            <div class="input-field col s3 m3">
+            <div class="input-field col s6 m3">
                 <i class="material-icons prefix cyan-text text-darken-1">attach_money</i>
                 <select id="request-currency-select">  
                     <option value="" disabled selected>Choose</option>                  
@@ -140,7 +147,7 @@
                 <span class="helper-text" id="request-currency-helper" data-error="wrong" data-success="right">Please choose currency</span>
             </div>
 
-            <div class="input-field col s3 m3">
+            <div class="input-field col s6 m3">
                 <i class="material-icons prefix cyan-text text-darken-1">sort</i>
                 <select id="sort-select">
                     <option value="price">Price</option>
@@ -149,12 +156,20 @@
                 <label>Sort by</label>
             </div>
 
-            <div class="col s6 m6 input-field" style="">
+            <div class="col s12 m3 input-field">
                 <label>
                     <input type="checkbox" id="with-rates-checkbox" <?= $withRates == "true"? "checked" : "" ?> />
                     <span>Show options with rates</span>
                 </label>
             </div>
+
+            <div class="col s12 m3 input-field">
+                <label>
+                    <input type="checkbox" id="valid-rates-checkbox" <?= $validRates == "true" ? "checked" : "" ?>/>
+                    <span>Show valid rates</span>
+                </label>
+            </div>
+
         </div>
 
         <div class="row valign-wrapper">

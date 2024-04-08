@@ -111,6 +111,85 @@ class DataWorker {
         return $cargo;
     }
 
+    // лінії
+    public function get_all_lines() {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT *
+                FROM trinity_lines
+                ORDER BY `name`";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute();
+
+            $cargo = $prep->fetchAll();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $cargo;
+    }
+
+    // типи контейнерів
+    public function get_all_container_types() {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT *
+                FROM trinity_container_types
+                ORDER BY `name`";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute();
+
+            $types = $prep->fetchAll();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $types;
+    }
+
+    // ставки
+    public function get_all_rates() {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT rs.trinity_code as supplier_code, tt.trinity_code as transport_type_code, rl.trinity_code as line, ro.start_point_name as pol, ro.end_point_name as pod, r.amount, c.cc, ct.trinity_code as cont_type, 
+                    r.etd, r.validity, r.remark
+                    FROM rates as r
+                    LEFT JOIN routes as ro
+                    ON r.route_id = ro.id
+                    LEFT JOIN trinity_suppliers as rs
+                    ON r.supplier_trinity_code = rs.trinity_code
+                    LEFT JOIN trinity_lines as rl
+                    ON r.line_id = rl.trinity_code
+                    LEFT JOIN currencies as c
+                    ON r.currency_r030 = c.r030
+                    LEFT JOIN trinity_container_types as ct
+                    ON r.container_type_id = ct.trinity_code
+                    LEFT JOIN transport_type as tt
+                    ON ro.transport_type_trinity_code = tt.trinity_code
+                    ORDER BY r.validity DESC, ro.start_point_name, ro.end_point_name, ct.name;";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute();
+
+            $rates = $prep->fetchAll();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $rates;
+    }
+
     // валюти
     public function get_all_currencies(){
         $db = $this->connect_db_or_exit();
@@ -131,6 +210,71 @@ class DataWorker {
         return $currencies;
     }
 
+    public function get_supplier_name_by_id($id) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT `name` 
+                FROM trinity_suppliers
+                WHERE trinity_code = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$id]);
+
+            $supplier = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $supplier['name'];
+    }  
+    
+    public function get_container_type_name_by_id($id) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT `name` 
+                FROM trinity_container_types
+                WHERE trinity_code = ?";
+
+        $container_type = null;
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$id]);
+
+            $container_type = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $container_type != null ? $container_type['name'] : "";
+    } 
+
+    public function get_line_name_by_id($id) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT `name` 
+                FROM trinity_lines
+                WHERE trinity_code = ?";
+
+        $line = null;
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$id]);
+
+            $line = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $line != null ? $line['name'] : "";
+    } 
+
     public function get_cargo_name_by_id($id) {
 
         $db = $this->connect_db_or_exit();
@@ -150,7 +294,7 @@ class DataWorker {
             exit;
         }
         return $cargo['name'];
-    }   
+    } 
 
     public function get_currency_cc_by_r030($r030) {
 
@@ -194,57 +338,32 @@ class DataWorker {
         return $cargo;
     }   
 
-    // пошук ставок по маршруту з сортування по вартості
-    public function get_route_rates($start_point_name, $end_point_name, $transport_type_trinity_code) {
+    // пошук ставок по маршруту з сортуванням та перевіркою валідності
+    public function get_route_rates($start_point_name, $end_point_name, $transport_type_trinity_code, $validity, $sortBy) {
 
         $db = $this->connect_db_or_exit();
-        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency_r030, rs.transit_time, rs.unit_payload, r.validity\n"
-                . "FROM `rates` as r \n"
-                . "LEFT JOIN routes as rt\n"
-                . "ON r.route_id = rt.id\n"
-                . "LEFT JOIN trinity_suppliers as s\n"
-                . "ON r.supplier_trinity_code = s.trinity_code\n"
-                . "LEFT JOIN routes_suppliers as rs\n"
-                . "ON rt.id = rs.route_id AND s.trinity_code = rs.supplier_id\n"
-                . "WHERE 	rt.start_point_name = ? AND\n"
-                . "		    rt.end_point_name = ? AND"
-                . "         rt.transport_type_trinity_code = ?\n"
-                . "ORDER BY r.amount;";
-
-        try {
-            $prep = $db->prepare($sql);
-            $prep->execute([
-                $start_point_name,
-                $end_point_name,
-                $transport_type_trinity_code
-            ]);
-
-            $rates = $prep->fetchAll();
+        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency_r030, rs.transit_time, rs.unit_payload, r.validity
+                FROM `rates` as r 
+                LEFT JOIN routes as rt
+                ON r.route_id = rt.id
+                LEFT JOIN trinity_suppliers as s
+                ON r.supplier_trinity_code = s.trinity_code
+                LEFT JOIN routes_suppliers as rs
+                ON rt.id = rs.route_id AND s.trinity_code = rs.supplier_id
+                WHERE 	rt.start_point_name = ? AND
+                        rt.end_point_name = ? AND
+                        rt.transport_type_trinity_code = ?";
+        if ($validity == "true") {
+            $sql .= " AND r.validity > CURRENT_TIMESTAMP";
+        } 
+        
+        if ($sortBy == "time") {
+            $sql .= " ORDER BY rs.transit_time;";        
         }
-        catch(PDOexception $ex) {
-            http_response_code(500);
-            $result['data']['message'] = "Connection error: " . $ex->getMessage();
-            exit;
+        else {
+            $sql .= " ORDER BY r.amount;";
         }
-        return $rates;
-    }
-
-    // пошук ставок по транзитному часу
-    public function get_route_rates_by_transit_time($start_point_name, $end_point_name, $transport_type_trinity_code) {
-
-        $db = $this->connect_db_or_exit();
-        $sql = "SELECT s.name, cast(r.date AS date) as rate_day, r.amount, r.currency_r030, rs.transit_time, rs.unit_payload, r.validity\n"
-                . "FROM `rates` as r \n"
-                . "LEFT JOIN routes as rt\n"
-                . "ON r.route_id = rt.id\n"
-                . "LEFT JOIN trinity_suppliers as s\n"
-                . "ON r.supplier_trinity_code = s.trinity_code\n"
-                . "LEFT JOIN routes_suppliers as rs\n"
-                . "ON rt.id = rs.route_id AND s.trinity_code = rs.supplier_id\n"
-                . "WHERE 	rt.start_point_name = ? AND\n"
-                . "		    rt.end_point_name = ? AND"
-                . "         rt.transport_type_trinity_code = ?\n"
-                . "ORDER BY rs.transit_time;";
+        
 
         try {
             $prep = $db->prepare($sql);
@@ -739,8 +858,12 @@ class DataWorker {
         $route_id,
         $amount,
         $currency,
+        $etd,
         $validity,
-        $source
+        $source,
+        $line_id,
+        $container_type_id,
+        $remark
         ) {
             $db = (new DataWorker())->connect_db_or_exit();
 
@@ -751,10 +874,14 @@ class DataWorker {
                             route_id,
                             amount,
                             currency_r030,
+                            etd,
                             validity,
-                            source
+                            source,
+                            line_id,
+                            container_type_id,
+                            remark
                         )
-                    VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+                    VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
             $result = "Error";
     
@@ -766,8 +893,12 @@ class DataWorker {
                     $route_id,
                     $amount,
                     $currency,
+                    $etd,
                     $validity,
-                    $source
+                    $source,
+                    $line_id,
+                    $container_type_id,
+                    $remark
                 ]);
                 $result = "Rate is added to database successfully!";
             }

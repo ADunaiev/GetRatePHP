@@ -44,7 +44,7 @@
                     <ul class="hide-on-med-and-down right">
                         <?php if($user) { ?>
                             <li><a href="/request">Request</a></li>                   
-                            <li><a href="/add_rate"><i class="material-icons">add</i></a></li>                   
+                            <li><a href="#!" class="dropdown-trigger" data-target="rates-dropdown">Rates<i class="material-icons right">arrow_drop_down</i></a></li>  <!-- <i class="material-icons">add</i> -->             
                             <li>                          
                                 <a href="/userprofile"  class="nav-text-img">
                                     <?= $user['name'] ?> 
@@ -63,7 +63,7 @@
             <ul class="sidenav right" id="mobile-demo">
                 <?php if($user) { ?>
                     <li><a class="modal-trigger" href="/request">Request</a></li> 
-                    <li><a class="modal-trigger" href="/add_rate"><i class="material-icons">add</i></a></li> 
+                    <li><a class="modal-trigger dropdown-trigger" data-target="rates-dropdown-small" href="/add_rate">Rates<i class="material-icons right">arrow_drop_down</i></a></li> <!-- <i class="material-icons">add</i> -->
                     <li>                          
                         <a href="/userprofile" class="model-trigger">
                             <?= $user['name'] ?>
@@ -73,6 +73,22 @@
                 <?php } else { ?>       
                     <li><a class="modal-trigger" href="#modal1">Sign in</a></li>
                 <?php } ?>
+            </ul>
+
+            <!-- Dropdown Structure -->
+            <ul id="rates-dropdown" class="dropdown-content">
+                <li><a href="/add_rate">Add rate</a></li>
+                <li><a href="/import_rates">Import rates</a></li>
+                <li class="divider"></li>
+                <li><a href="/all_rates">All rates</a></li>
+            </ul>
+
+            <!-- Dropdown Structure small screen -->
+            <ul id="rates-dropdown-small" class="dropdown-content">
+                <li><a href="/add_rate">Add rate</a></li>
+                <li><a href="/import_rates">Import rates</a></li>
+                <li class="divider"></li>
+                <li><a href="/all_rates">All rates</a></li>
             </ul>
 
             <!-- Modal Structure -->

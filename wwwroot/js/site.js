@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.sidenav');
     var instances = M.Sidenav.init(elems);
 
+    var elems = document.querySelectorAll('.dropdown-trigger');
+    var instances = M.Dropdown.init(elems, {constrainWidth: false});
+
     var elems = document.querySelectorAll('.modal');
     var instances = M.Modal.init(elems);
 
@@ -53,7 +56,66 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addRateButton) {
         addRateButton.onclick = addRateButtonClick;
     }
+
+    // шукаємо кнопку отримання ставок
+    const getRatesButton = document.getElementById("get-rates-button");
+    if (getRatesButton) {
+        getRatesButton.onclick = getRatesButtonClick;
+    }
+
+    // шукаємо кнопку імпорту ставок
+    const importRatesButton = document.getElementById("import-rates-button");
+    if (importRatesButton) {
+        importRatesButton.onclick = importRatesButtonClick;
+    }
 });
+
+function importRatesButtonClick() {
+    console.log("Import button is clicked");
+}
+
+function getRatesButtonClick() {
+    const userIdInput = document.getElementById("all-rates-user");
+    if(!userIdInput) throw "'all-rates-user' is not found";
+
+    const allRatesSupplierSelect = document.getElementById("all-rates-supplier-select");
+    if(!allRatesSupplierSelect) { throw "'all-rates-supplier-select' was not found";}
+
+    const allRatesTransportTypeSelect = document.getElementById("all-rates-transport-type-select");
+    if(!allRatesTransportTypeSelect) { throw "'all-rates-transport-type-select' was not found";}
+
+    const startPointSelect = document.getElementById("all-rates-start-point-select");
+    if(!startPointSelect) { throw "'all-rates-start-point-select' was not found";}
+
+    const endPointSelect = document.getElementById("all-rates-end-point-select");
+    if(!endPointSelect) { throw "'all-rates-end-point-select' was not found";}
+
+    const allRatesContainerTypeSelect = document.getElementById("all-rates-container-type-select");
+    if(!allRatesContainerTypeSelect) { throw "'all-rates-container-type-select' was not found";}
+
+    const allRatesLineSelect = document.getElementById("all-rates-line-select");
+    if(!allRatesLineSelect) { throw "'all-rates-line-select' was not found";}
+
+    const formData = new FormData();
+    formData.append("user-id", userIdInput.value);
+    formData.append("supplier-trinity-code", allRatesSupplierSelect.value);
+    formData.append("transport-type-trinity-code", allRatesTransportTypeSelect.value);
+    formData.append("start-point", startPointSelect.value);
+    formData.append("end-point", endPointSelect.value);
+    formData.append("container-type", allRatesContainerTypeSelect.value);
+    formData.append("line", allRatesLineSelect.value);
+
+    fetch('/allrates', {
+        method: 'POST',
+        body: formData
+    })
+        .then(r => r.json())
+        .then(j => {
+
+                window.location.reload();
+
+        });
+}
 
 function addRateButtonClick(e) {
     const userIdInput = document.getElementById("add-rate-user");
@@ -99,10 +161,28 @@ function addRateButtonClick(e) {
     const addRateCurrencyHelper = document.getElementById('add-rate-currency-helper');
     if (!addRateCurrencyHelper) throw "Element 'add-rate-currency-helper' is not found";
 
+    const addRateEtdInput = document.getElementById("add-rate-etd-input");
+    if(!addRateEtdInput) { throw "'add-rate-etd-input' was not found";}
+    const addRateEtdHelper = document.getElementById('add-rate-etd-helper');
+    if (!addRateEtdHelper) throw "Element 'add-rate-etd-helper' is not found";
+
     const addRateValidityInput = document.getElementById("add-rate-validity-input");
     if(!addRateValidityInput) { throw "'add-rate-validity-input' was not found";}
     const addRateValidityHelper = document.getElementById('add-rate-validity-helper');
     if (!addRateValidityHelper) throw "Element 'add-rate-validity-helper' is not found";
+
+    const addRateContainerTypeSelect = document.getElementById("add-rate-container-type-select");
+    if(!addRateContainerTypeSelect) { throw "'add-rate-container-type-select' was not found";}
+    const addRateContainerTypeHelper = document.getElementById('add-rate-container-type-helper');
+    if (!addRateContainerTypeHelper) throw "Element 'add-rate-container-type-helper' is not found";
+
+    const addRateLineSelect = document.getElementById("add-rate-line-select");
+    if(!addRateLineSelect) { throw "'add-rate-line-select' was not found";}
+    const addRateLineHelper = document.getElementById('add-rate-line-helper');
+    if (!addRateLineHelper) throw "Element 'add-rate-line-helper' is not found";
+
+    const addRateRemarkTextarea = document.getElementById("add-rate-remark-textarea");
+    if(!addRateRemarkTextarea) { throw "'add-rate-remark-textarea' was not found";}
 
     const addRateResultMesssage = document.getElementById("add-rate-result");
     if (!addRateResultMesssage) {throw "Element 'add-rate-result' was not found!"}
@@ -144,9 +224,11 @@ function addRateButtonClick(e) {
                 formData.append("unit-payload", unitPayloadInput.value);
                 formData.append("amount", addRateAmountInput.value);
                 formData.append("currency", addRateCurrencySelect.value);
+                formData.append("etd", addRateEtdInput.value);
                 formData.append("validity", addRateValidityInput.value);
-
-                console.log(addRateValidityInput.value);
+                formData.append("container-type", addRateContainerTypeSelect.value);
+                formData.append("line", addRateLineSelect.value);
+                formData.append("remark", addRateRemarkTextarea.value);
     
                 fetch('/addrate', {
                     method: 'POST',
@@ -218,6 +300,9 @@ function requestButtonClick(e) {
     const withRatesCheckbox = document.getElementById("with-rates-checkbox");
     if (!withRatesCheckbox) {throw "Element 'with-rates-checkbox' was not found!"}
 
+    const validRatesCheckbox = document.getElementById("valid-rates-checkbox");
+    if (!validRatesCheckbox) {throw "Element 'valid-rates-checkbox' was not found!"}
+
     const sortSelect = document.getElementById("sort-select");
     if (!sortSelect) {throw "Element 'sort-select' was not found!"}
 
@@ -242,6 +327,7 @@ function requestButtonClick(e) {
                 formData.append("cargo-gw", grossWeightInput.value);
                 formData.append("user-id", userIdInput.value);
                 formData.append("with-rates", withRatesCheckbox.checked);
+                formData.append("valid-rates", validRatesCheckbox.checked);
                 formData.append("sort-by", sortSelect.value);
                 formData.append("currency", currencyRequestSelect.value);
 

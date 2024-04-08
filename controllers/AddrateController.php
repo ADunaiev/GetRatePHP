@@ -30,7 +30,11 @@ class AddrateController extends ApiController {
         $unit_payload = $_POST['unit-payload'];
         $amount = $_POST['amount'];
         $currency = $_POST['currency'];
+        $etd = $_POST['etd'];
         $validity = $_POST['validity'];
+        $container_type_id = $_POST['container-type'];
+        $line_id = $_POST['line'];
+        $remark = $_POST['remark'];
 
         // валідуємо отримані дані
         if ($user_id == "") {
@@ -178,14 +182,32 @@ class AddrateController extends ApiController {
             $route_supplier['route_id'],
             $amount,
             $currency,
+            $etd,
             $validity,
-            $source
+            $source,
+            $line_id,
+            $container_type_id,
+            $remark
         );
 
         if ($result['data']['message'] != "Error") {
             $result['status'] = 1;
         }
 
+        session_start();
+            
+        // передаємо знайдені маршрути в сесію
+        $_SESSION['start-point'] = $start_point;
+        $_SESSION['end-point'] = $end_point;
+        $_SESSION['supplier'] = $dataWorker->get_supplier_name_by_id($supplier_trinity_code);
+        $_SESSION['transport-type'] = $dataWorker->get_transport_type_name_by_trinity_code($transport_type_trinity_code);
+        $_SESSION['amount'] = $amount;
+        $_SESSION['currency'] = $dataWorker->get_currency_cc_by_r030($currency);
+        $_SESSION['etd'] = $etd;
+        $_SESSION['validity'] = $validity;
+        $_SESSION['container-type'] = $dataWorker->get_container_type_name_by_id($container_type_id);
+        $_SESSION['line'] = $dataWorker->get_line_name_by_id($line_id);
+        $_SESSION['remark'] = $remark;
 
         $this->end_with($result);
 

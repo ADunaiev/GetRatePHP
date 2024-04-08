@@ -28,6 +28,7 @@ class RequestsController extends ApiController {
         $cargo_id = $_POST['cargo'];
         $cargo_gw = $_POST['cargo-gw'];
         $withRates = $_POST['with-rates'];
+        $validRates = $_POST['valid-rates'];
         $sort_by = $_POST['sort-by'];
         $currency = $_POST['currency'];
         $dataWorker = new DataWorker();
@@ -104,21 +105,13 @@ class RequestsController extends ApiController {
                     $route['transport_type_trinity_code']
                 );
 
-            if($sort_by == "time") {
-                $route_rates = $dataWorker->get_route_rates_by_transit_time(
-                    $route['start_point_name'],
-                    $route['end_point_name'],
-                    $route['transport_type_trinity_code']
-                ); 
-            }
-            else {
-                $route_rates = $dataWorker->get_route_rates(
-                    $route['start_point_name'],
-                    $route['end_point_name'],
-                    $route['transport_type_trinity_code']
-                ); 
-            }
-
+            $route_rates = $dataWorker->get_route_rates(
+                $route['start_point_name'],
+                $route['end_point_name'],
+                $route['transport_type_trinity_code'],
+                $validRates,
+                $sort_by
+            ); 
 
             $units_quantity = $route_rates != null ? ceil( $cargo_gw / $route_rates[0]['unit_payload']) : 0;
             $route_rate_amount = $route_rates != null ? $route_rates[0]['amount'] : 0;
@@ -129,7 +122,7 @@ class RequestsController extends ApiController {
 
             $route_sum = $units_quantity * $route_rate_amount;
 
-            
+            // конвертуємо суму в валюту реквеста
             if ($route_rate_currency_r030 != $currency) {
                 $currency_1 = $dataWorker->get_currency_by_r030($route_rate_currency_r030);
                 $currency_2 = $dataWorker->get_currency_by_r030($currency);
@@ -185,21 +178,13 @@ class RequestsController extends ApiController {
                 $route['first_transport']
             );
 
-            if ($sort_by == "time") {
-                $route1_rates = $dataWorker->get_route_rates_by_transit_time(
-                    $route['start_point_name'],
-                    $route['middle_point'],
-                    $route['first_transport']
-                ); 
-            }
-            else {
-                $route1_rates = $dataWorker->get_route_rates(
-                    $route['start_point_name'],
-                    $route['middle_point'],
-                    $route['first_transport']
-                ); 
-            }
-
+            $route1_rates = $dataWorker->get_route_rates(
+                $route['start_point_name'],
+                $route['middle_point'],
+                $route['first_transport'],
+                $validRates,
+                $sort_by
+            ); 
 
             $units_quantity1 = $route1_rates != null ? ceil( $cargo_gw / $route1_rates[0]['unit_payload']) : 0;
             $route1_rate_amount = $route1_rates != null ? $route1_rates[0]['amount'] : 0;
@@ -244,21 +229,13 @@ class RequestsController extends ApiController {
                 $route['second_transport']
             );
 
-            if ($sort_by == "time") {
-                $route2_rates = $dataWorker->get_route_rates_by_transit_time(
-                    $route['middle_point'],
-                    $route['end_point_name'],
-                    $route['second_transport']
-                ); 
-    
-            }
-            else {
-                $route2_rates = $dataWorker->get_route_rates(
-                    $route['middle_point'],
-                    $route['end_point_name'],
-                    $route['second_transport']
-                ); 
-            }
+            $route2_rates = $dataWorker->get_route_rates(
+                $route['middle_point'],
+                $route['end_point_name'],
+                $route['second_transport'],
+                $validRates,
+                $sort_by
+            ); 
 
             $units_quantity2 = $route2_rates != null ? ceil( $cargo_gw / $route2_rates[0]['unit_payload']) : 0;
             $route2_rate_amount = $route2_rates != null ? $route2_rates[0]['amount'] : 0;
@@ -319,21 +296,13 @@ class RequestsController extends ApiController {
                 $route['1st_transport']
             );
 
-            if ($sort_by == "time") {
-                $route1_rates = $dataWorker->get_route_rates_by_transit_time(
-                    $route['start_point_name'],
-                    $route['middle_point1'],
-                    $route['1st_transport']
-                ); 
-            }
-            else {
-                $route1_rates = $dataWorker->get_route_rates(
-                    $route['start_point_name'],
-                    $route['middle_point1'],
-                    $route['1st_transport']
-                ); 
-            }
-
+            $route1_rates = $dataWorker->get_route_rates(
+                $route['start_point_name'],
+                $route['middle_point1'],
+                $route['1st_transport'],
+                $validRates,
+                $sort_by
+            ); 
 
             $units_quantity1 = $route1_rates != null ? ceil( $cargo_gw / $route1_rates[0]['unit_payload']) : 0;
             $route1_rate_amount = $route1_rates != null ? $route1_rates[0]['amount'] : 0;
@@ -379,21 +348,13 @@ class RequestsController extends ApiController {
                 $route['2nd_transport']
             );
 
-            if ($sort_by == "time") {
-                $route2_rates = $dataWorker->get_route_rates_by_transit_time(
-                    $route['middle_point1'],
-                    $route['middle_point2'],
-                    $route['2nd_transport']
-                ); 
-            }
-            else {
-                $route2_rates = $dataWorker->get_route_rates(
-                    $route['middle_point1'],
-                    $route['middle_point2'],
-                    $route['2nd_transport']
-                ); 
-            }
-
+            $route2_rates = $dataWorker->get_route_rates(
+                $route['middle_point1'],
+                $route['middle_point2'],
+                $route['2nd_transport'],
+                $validRates,
+                $sort_by
+            ); 
 
             $units_quantity2 = $route2_rates != null ? ceil( $cargo_gw / $route2_rates[0]['unit_payload']) : 0;
             $route2_rate_amount = $route2_rates != null ? $route2_rates[0]['amount'] : 0;
@@ -437,21 +398,13 @@ class RequestsController extends ApiController {
                 $route['3rd_transport']
             );
 
-            if ($sort_by == "time") {
-                $route3_rates = $dataWorker->get_route_rates_by_transit_time(
-                    $route['middle_point2'],
-                    $route['end_point_name'],
-                    $route['3rd_transport']
-                ); 
-            }
-            else {
-                $route3_rates = $dataWorker->get_route_rates(
-                    $route['middle_point2'],
-                    $route['end_point_name'],
-                    $route['3rd_transport']
-                ); 
-            }
-
+            $route3_rates = $dataWorker->get_route_rates(
+                $route['middle_point2'],
+                $route['end_point_name'],
+                $route['3rd_transport'],
+                $validRates,
+                $sort_by
+            ); 
 
             $units_quantity3 = $route3_rates != null ? ceil( $cargo_gw / $route3_rates[0]['unit_payload']) : 0;
             $route3_rate_amount = $route3_rates != null ? $route3_rates[0]['amount'] : 0;
@@ -532,6 +485,7 @@ class RequestsController extends ApiController {
         $_SESSION['with-rates'] = $withRates;
         $_SESSION['sort-by'] = $sort_by;
         $_SESSION['currency'] = $currency;
+        $_SESSION['valid-rates'] = $validRates;
 
 
         $result['status'] = 1;
