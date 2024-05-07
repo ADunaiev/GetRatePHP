@@ -28,7 +28,7 @@
             $all_rates = $_SESSION['all-rates'];
         }
         else {
-            $all_rates = null;
+            $all_rates = $dataWorker->get_all_rates();
         }
 
         if (isset($_SESSION['supplier-trinity-code'])) {
@@ -162,7 +162,7 @@
 <div>
 
 <div id="all-rates-search-results">
-    <table>
+    <table class="highlight">
         <thead>
             <tr>
                 <th>Line</th>

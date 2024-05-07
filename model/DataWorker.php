@@ -911,4 +911,159 @@ class DataWorker {
             return $result;
     }
 
+    // створити новий імпорт ставок
+    public function create_rates_import(
+        $date,
+        $user_id,
+        $file_name
+        ) {
+            $db = (new DataWorker())->connect_db_or_exit();
+
+            $sql = "INSERT INTO rates_imports 
+                        (
+                            date,
+                            user_id,
+                            file_name
+                        )
+                    VALUES ( ?, ?, ?)";
+    
+            $result = "Error";
+    
+            try {
+                $prep = $db->prepare($sql);
+                $prep->execute([
+                    $date,
+                    $user_id,
+                    $file_name
+                ]);
+                $result = "Rate is added to database successfully!";
+            }
+            catch(PDOException $ex) {
+                http_response_code(500);
+                echo "Connection error: " . $ex->getMessage();
+                exit;
+            } 
+            
+            return $result;
+    }
+
+    //валідація даних отриманих при імпорті
+    
+    // валідація лінії
+    public function validate_line($line_name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT * FROM trinity_lines
+                    WHERE name = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $line_name
+            ]);
+            $result = $prep->fetch();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result = "Error! Line was not found.";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        return isset($result[0]) ? true : false;
+    }
+
+    // валідація порта
+    public function validate_port($port_name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT * FROM trinity_ports
+                    WHERE name = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $port_name
+            ]);
+            $result = $prep->fetch();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result = "Error! Port was not found.";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        return isset($result[0]) ? true : false;
+    }
+
+    // валідація валюти
+    public function validate_currency($currency_name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT * FROM currencies
+                    WHERE cc = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $currency_name
+            ]);
+            $result = $prep->fetch();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result = "Error! Currency was not found.";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        return isset($result[0]) ? true : false;
+    }
+
+    // валідація типу контейнера
+    public function validate_container_type($type_name) {
+
+        $db = (new DataWorker())->connect_db_or_exit();
+
+        $sql = "SELECT * FROM trinity_container_types
+                    WHERE name = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([
+                $type_name
+            ]);
+            $result = $prep->fetch();
+        }
+        catch(PDOException $ex) {
+            http_response_code(500);
+            $result = "Error! Container type was not found.";
+            echo "Connection error: " . $ex->getMessage();
+            exit;
+        } 
+
+        return isset($result[0]) ? true : false;
+    }  
+
+    // валідація дати
+    function validateDate($date)
+    {
+        $result = false;
+
+        if (substr_count($date, '/') > 1) {
+
+            list($month, $day, $year) = explode('/', $date);
+        
+            if (intval($day) > 0 && intval($month) > 0 && intval($year) > 0) {
+                return checkdate($month, $day, $year);
+            }
+        }
+
+        return $result;
+    }
+
 }

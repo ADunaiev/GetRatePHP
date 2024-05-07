@@ -71,7 +71,36 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function importRatesButtonClick() {
-    console.log("Import button is clicked");
+    const importRatesUserIdInput = document.getElementById("import-rates-user");
+    if(!importRatesUserIdInput) throw "'import-rates-user' is not found";
+
+    const importRatesInput = document.getElementById("import-rates-file");
+    if(!importRatesInput) {throw "importRatesInput not found";}
+
+    const importRatesResult = document.getElementById("import-rates-result");
+    if(!importRatesResult) {throw "'import-rates-result' not found";}
+
+     // формуємо дані для передачі на бекенд
+     const formData = new FormData();
+     formData.append("user-id", importRatesUserIdInput.value);
+     if (importRatesInput.files.length >0){
+         formData.append("import-rates-file", importRatesInput.files[0]);
+     }
+     
+     fetch('/importrates', {
+        method: 'POST',
+        body: formData
+     })
+        .then(r => r.json())
+        .then(j => {
+            if (j.status != -1) {
+                window.location.reload();
+            }
+            else {
+                importRatesResult.innerHTML = j.data.message;
+                importRatesResult.style.background = "lightpink";
+            }
+        });
 }
 
 function getRatesButtonClick() {
