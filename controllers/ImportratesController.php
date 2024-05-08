@@ -31,8 +31,11 @@ class ImportratesController extends ApiController {
                 'imported_file' => "",
             ],
         ];
+        $dataWorker = new DataWorker();
 
         $user_id = $_POST['user-id'];
+        $supplier_trinity_code = 
+        $dataWorker->get_supplier_code_by_user_id($user_id);
 
         if(! empty($_FILES['import-rates-file'])){
             // файл якщо переданий, то перевіряємо його
@@ -69,14 +72,14 @@ class ImportratesController extends ApiController {
 
             $inputFileNamePath = "./wwwroot/imported_rates/" . $filename;
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($inputFileNamePath);
-            $imported_rates = $spreadsheet->getActiveSheet()->toArray();
+            $raw_rates = $spreadsheet->getActiveSheet()->toArray();
 
-            $result['data']['result'] = $imported_rates;
-            $dataWorker = new DataWorker();
+            
+            
             $check = 1;
 
             // валідація кожної отриманної строки
-            foreach($imported_rates as $rate) {
+            foreach($raw_rates as $rate) {
                 if ($rate[0] != "line") {
                     if (
                         !$dataWorker->validate_line($rate[0]) ||
@@ -94,43 +97,108 @@ class ImportratesController extends ApiController {
                 }
             }
 
+            // формуємо масив з результатом
+            $imported_rates = array();
+
             // перевірка наявності маршрута в базі
-            // перевірка наявності сервіса
-            // додавання ставки в бд
+            foreach($raw_rates as $rate) {
+
+                $new_rate = array(
+                    "rate_item" => $rate,
+                    "is_route" => "",
+                    "route" => "",
+                    "route_message" => "",
+                    "is_service" => "",
+                    "route_supplier" => "",
+                    "service_message" => "",
+                    "is_saved" => "",
+                    "db_message" => ""
+                );
+
+                if ($check == 1) {
+
+                    $route = $dataWorker->get_route(
+                        "000000004",
+                        $rate[1],
+                        $rate[2]
+                    );
+                    
+                    if ($route) {
+                        $new_rate['is_route'] = true;
+                        $new_rate['route_message'] = "Route is found";
+                        $new_rate['route'] = $route;
+                    
+                        // перевіряємо наявність сервіса
+                        $route_supplier = $dataWorker->get_route_supplier(
+                            $route['id'],
+                            $supplier_trinity_code
+                        );
+
+                        if ($route_supplier != null) {
+                            $new_rate['is_service'] = true;
+                            $new_rate['service_message'] = " Service is found";
+                            $new_rate['route_supplier'] = $route_supplier;
+
+                            // додавання ставки в бд
+
+                            $date = date('Y-m-d H:i:s');
+                            $source = "Imported from excel";
+                            $currecy_r030 = $dataWorker->get_currency_r030_by_cc($rate[4]);
+                            $line_id = $dataWorker->get_line_trinity_code_by_name($rate[0]);
+                            $container_type_id = $dataWorker->get_container_type_id_by_name($rate[5]);
+                            $etd = date("Y-m-d", strtotime($rate[6]));
+                            $validity = date( "Y-m-d", strtotime($rate[7]));
+                    
+                            $new_rate['db_message'] = $dataWorker->create_rate(
+                                $date,
+                                $supplier_trinity_code, 
+                                $route_supplier['route_id'],
+                                $rate[3],
+                                $currecy_r030,
+                                $etd,
+                                $validity,
+                                $source,
+                                $line_id,
+                                $container_type_id,
+                                $rate[8]
+                            );
+                    
+                            if ($new_rate['db_message'] != "Error") {
+                                $new_rate['is_saved'] = true;
+                            }
+                            else {
+                                $new_rate['is_saved'] = false;
+                            }
+                        }
+                        else {
+                            $new_rate['is_service'] = false;
+                            $new_rate['service_message'] .= " Service is not found";
+                        }
+                        
+                    }
+                    else {
+                        $new_rate['is_route'] = false;
+                        $new_rate['route_message'] = "Route is not found";
+                    }
+                }
+
+                array_push($imported_rates, $new_rate);
+            }
 
 
-            // зберігаємо файл з даними
-            //$dataWorker = new DataWorker();
-            //$date = date('Y-m-d H:i:s');
-            //$dataWorker->create_rates_import($date, $user_id, $filename);
+
+            $result['data']['result'] = $imported_rates;
 
             session_start();
 
             $_SESSION['imported_rates'] = $imported_rates;
             $_SESSION['filename'] = $_FILES['import-rates-file']['name'];
             if ($check == 1) {
-                $date = date('Y-m-d H:i:s');
-                $source = "Uploaded from excel";
-                /*
-                foreach($imported_rates as $rate) {
-                    $dataWorker->create_rate(
-                        $date,
-                        $supplier_id, // потрібно корегувати таблицю юзеров
-                        $route_id,
-                        $amount,
-                        $currency,
-                        $etd,
-                        $validity,
-                        $source,
-                        $line_id,
-                        $container_type_id,
-                        $remark
-                    );
-                }*/
-                $result['status'] = 1;
                 $_SESSION['validation'] = "successful";
+                $result['status'] = 1;
+                $result['data']['message'] = "Rates import is added successfully!";
             } 
-            $result['data']['message'] = "Rates import is added successfully!";
+            
         }
         else {
             $result['data']['message'] = "File is not loaded";

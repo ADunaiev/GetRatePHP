@@ -230,6 +230,27 @@ class DataWorker {
         }
         return $supplier['name'];
     }  
+
+    public function get_supplier_code_by_user_id($id) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT `supplier_id` 
+                FROM users
+                WHERE id = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$id]);
+
+            $user = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $user != null ? $user['supplier_id'] : "";
+    }  
     
     public function get_container_type_name_by_id($id) {
 
@@ -253,6 +274,28 @@ class DataWorker {
         return $container_type != null ? $container_type['name'] : "";
     } 
 
+    public function get_container_type_id_by_name($name) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT `trinity_code` 
+                FROM trinity_container_types
+                WHERE name = ?";
+
+        $container_type = null;
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$name]);
+
+            $container_type = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $container_type != null ? $container_type['trinity_code'] : "";
+    } 
+
     public function get_line_name_by_id($id) {
 
         $db = $this->connect_db_or_exit();
@@ -273,6 +316,28 @@ class DataWorker {
             exit;
         }
         return $line != null ? $line['name'] : "";
+    } 
+
+    public function get_line_trinity_code_by_name($name) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT `trinity_code` 
+                FROM trinity_lines
+                WHERE name = ?";
+
+        $line = null;
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$name]);
+
+            $line = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $line != null ? $line['trinity_code'] : "";
     } 
 
     public function get_cargo_name_by_id($id) {
@@ -316,6 +381,27 @@ class DataWorker {
         }
         return $cargo['cc'];
     }   
+
+    public function get_currency_r030_by_cc($cc) {
+
+        $db = $this->connect_db_or_exit();
+        $sql = "SELECT r030 
+                FROM currencies
+                WHERE cc = ?";
+
+        try {
+            $prep = $db->prepare($sql);
+            $prep->execute([$cc]);
+
+            $currency = $prep->fetch();
+        }
+        catch(PDOexception $ex) {
+            http_response_code(500);
+            $result['data']['message'] = "Connection error: " . $ex->getMessage();
+            exit;
+        }
+        return $currency['r030'];
+    } 
 
     public function get_currency_by_r030($r030) {
 
@@ -1065,5 +1151,24 @@ class DataWorker {
 
         return $result;
     }
+
+    // форматування дати з строки
+    function parseDate($date)
+    {
+
+        if (substr_count($date, '/') > 1) {
+
+            list($month, $day, $year) = explode('/', $date);
+
+            $new_date = new DateTime();
+        
+            if (intval($day) > 0 && intval($month) > 0 && intval($year) > 0) {
+                $new_date->setDate($year, $month, $day);
+            }
+        }
+
+        return $new_date;
+    }
+
 
 }

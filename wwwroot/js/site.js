@@ -95,10 +95,12 @@ function importRatesButtonClick() {
         .then(j => {
             if (j.status != -1) {
                 window.location.reload();
+                //console.log(j);
             }
             else {
                 importRatesResult.innerHTML = j.data.message;
                 importRatesResult.style.background = "lightpink";
+                
             }
         });
 }
@@ -280,6 +282,7 @@ function addRateButtonClick(e) {
                             addRateResultMesssage.innerHTML = j.data.message;
                             addRateResultMesssage.style.background = "lightgreen";
 
+                            
                             setTimeout(function() {
                                 window.location.reload();
                               }, 3000);

@@ -70,112 +70,143 @@
                 <th>ETD</th>
                 <th>Validity</th>
                 <th>Remark</th>
+                <th>Route message</th>
+                <th>Service message</th>
+                <th>db message</th>
             </tr>
         </thead>
         <tbody>
             <?php if ($imported_rates != null) {
                 $count = 1;
                 foreach($imported_rates as $rate) { 
-                    if ($rate[0] != "line") { ?>
+                    if ($rate['rate_item'][0] != "line") { ?>
                         <tr>
                             <td><?= $count++ ?></td>
-                            <?php if (isset($rate[0])) {
-                                if ($dataWorker->validate_line($rate[0])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[0] ?></td>
+                            <?php if (isset($rate['rate_item'][0])) {
+                                if ($dataWorker->validate_line($rate['rate_item'][0])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][0] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong line name!"><b><?= $rate[0] ?></b></td>
+                                    <td class="red-text" title="Wrong line name!"><b><?= $rate['rate_item'][0] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <?php if (isset($rate[1])) {
-                                if ($dataWorker->validate_port($rate[1])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[1] ?></td>
+                            <?php if (isset($rate['rate_item'][1])) {
+                                if ($dataWorker->validate_port($rate['rate_item'][1])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][1] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong port name!"><b><?= $rate[1] ?></b></td>
+                                    <td class="red-text" title="Wrong port name!"><b><?= $rate['rate_item'][1] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <?php if (isset($rate[2])) {
-                                if ($dataWorker->validate_port($rate[2])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[2] ?></td>
+                            <?php if (isset($rate['rate_item'][2])) {
+                                if ($dataWorker->validate_port($rate['rate_item'][2])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][2] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong port name!"><b><?= $rate[2] ?></b></td>
+                                    <td class="red-text" title="Wrong port name!"><b><?= $rate['rate_item'][2] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <?php if (isset($rate[3])) {
-                                if ($rate[3] > 0 && is_numeric($rate[3])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[3] ?></td>
+                            <?php if (isset($rate['rate_item'][3])) {
+                                if ($rate['rate_item'][3] > 0 && is_numeric($rate['rate_item'][3])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][3] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong amount!"><b><?= $rate[3] ?></b></td>
+                                    <td class="red-text" title="Wrong amount!"><b><?= $rate['rate_item'][3] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <?php if (isset($rate[4])) {
-                                if ($dataWorker->validate_currency($rate[4])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[4] ?></td>
+                            <?php if (isset($rate['rate_item'][4])) {
+                                if ($dataWorker->validate_currency($rate['rate_item'][4])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][4] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong currency!"><b><?= $rate[4] ?></b></td>
+                                    <td class="red-text" title="Wrong currency!"><b><?= $rate['rate_item'][4] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <?php if (isset($rate[5])) {
-                                if ($dataWorker->validate_container_type($rate[5])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[5] ?></td>
+                            <?php if (isset($rate['rate_item'][5])) {
+                                if ($dataWorker->validate_container_type($rate['rate_item'][5])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][5] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong container type!"><b><?= $rate[5] ?></b></td>
+                                    <td class="red-text" title="Wrong container type!"><b><?= $rate['rate_item'][5] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <?php if (isset($rate[6])) {
-                                if ($dataWorker->validateDate($rate[6])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[6] ?></td>
+                            <?php if (isset($rate['rate_item'][6])) {
+                                if ($dataWorker->validateDate($rate['rate_item'][6])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][6] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong container type!"><b><?= $rate[6] ?></b></td>
+                                    <td class="red-text" title="Wrong container type!"><b><?= $rate['rate_item'][6] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <?php if (isset($rate[7])) {
-                                if ($dataWorker->validateDate($rate[7])) { ?>
-                                    <td class="cyan-text text-darken-1"><?= $rate[7] ?></td>
+                            <?php if (isset($rate['rate_item'][7])) {
+                                if ($dataWorker->validateDate($rate['rate_item'][7])) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['rate_item'][7] ?></td>
                                 <?php }
                                 else { ?>
-                                    <td class="red-text" title="Wrong container type!"><b><?= $rate[7] ?></b></td>
+                                    <td class="red-text" title="Wrong container type!"><b><?= $rate['rate_item'][7] ?></b></td>
                                 <?php }
                             } 
                             else { ?>
                                 <td class="red-text" title="Field is empty!"><b>empty</b></td>
                             <?php }?>
 
-                            <td><?= isset($rate[8]) ? $rate[8] : "" ?></td>
+                            <td><?= isset($rate['rate_item'][8]) ? $rate['rate_item'][8] : "" ?></td>
+
+                            <?php if (isset($rate['is_route'])) {
+                                if ($rate['is_route']) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['route_message'] ?></td>
+                                <?php }
+                                else { ?>
+                                    <td class="red-text"><b><?= $rate['route_message'] ?></b></td>
+                                <?php }
+                            } ?>
+
+                            <?php if (isset($rate['is_service'])) {
+                                if ($rate['is_service']) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['service_message'] ?></td>
+                                <?php }
+                                else { ?>
+                                    <td class="red-text"><b><?= $rate['service_message'] ?></b></td>
+                                <?php }
+                            } ?>
+
+                            <?php if (isset($rate['is_saved'])) {
+                                if ($rate['is_saved']) { ?>
+                                    <td class="cyan-text text-darken-1"><?= $rate['db_message'] ?></td>
+                                <?php }
+                                else { ?>
+                                    <td class="red-text"><b><?= $rate['db_message'] ?></b></td>
+                                <?php }
+                            } ?>
+                            
                         </tr>
                     <?php } ?>
                 <?php }
